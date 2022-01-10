@@ -26,7 +26,6 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void Move(Vector2 movementDirection)
         {
-            Debug.Log($"movementDirection = {movementDirection}");
             _characterController.Move(new Vector3(movementDirection.x, Physics.gravity.y, movementDirection.y) * _settings.Speed * Time.deltaTime);
         }
     }
