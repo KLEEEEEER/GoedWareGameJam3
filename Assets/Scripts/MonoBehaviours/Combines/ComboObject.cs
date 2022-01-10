@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 namespace GoedWareGameJam3.MonoBehaviours.Combines
 {
@@ -17,6 +18,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         [SerializeField] private Type _type = Type.Type1;
         public Type ComboObjectType => _type;
 
+        private Vector3 _instantiatedPosition;
+
         private int _currentComboType;
         private int _maxTypesAmount;
 
@@ -27,6 +30,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         {
             _maxTypesAmount = Enum.GetValues(typeof(Type)).Length;
             _currentComboType = (int)_type;
+        }
+
+        private void Start()
+        {
+            _instantiatedPosition = transform.position;
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -41,10 +49,15 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
                     Touch();
 
                     Debug.Log($"Creating comboObject of type {(Type)(_currentComboType + 1)} at {transform.position}");
-                    ComboObjectFactory.Instance.Create((Type)(_currentComboType + 1), transform.position);
 
-                    Destroy(comboObject.gameObject);
-                    Destroy(gameObject);
+                    comboObject.transform.DOScale(0, 0.2f).OnComplete(() => {
+                        Destroy(comboObject.gameObject);
+                    });
+
+                    transform.DOScale(0, 0.2f).OnComplete(() => {
+                        ComboObjectFactory.Instance.Create((Type)(_currentComboType + 1), transform.position);
+                        Destroy(gameObject);
+                    });
                 }
             }
         }

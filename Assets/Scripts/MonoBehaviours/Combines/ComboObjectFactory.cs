@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,7 +28,12 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         {
             if (!_prefabsDictionary.ContainsKey(type)) return;
 
-            Instantiate(_prefabsDictionary[type], position, Quaternion.identity);
+            GameObject createdComboObject = Instantiate(_prefabsDictionary[type], position, Quaternion.identity);
+            float instantiatedScale = createdComboObject.transform.localScale.x;
+
+            createdComboObject.transform.localScale = Vector3.zero;
+
+            createdComboObject.transform.DOScale(instantiatedScale, 0.1f);
         }
     }
 
