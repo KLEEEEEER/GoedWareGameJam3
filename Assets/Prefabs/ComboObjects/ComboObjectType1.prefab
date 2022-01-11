@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8476384528195040219}
   - component: {fileID: 8476384528195040212}
   - component: {fileID: 8476384528195040213}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ComboObjectType1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 8476384528195040218}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5.58, y: 1.32, z: 2.42}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.8, y: 1.8, z: 1.8}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -126,6 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8a0ceee1072e86478e0823c3fe41889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _unholdDistance: 2.88
 --- !u!114 &8476384528195040213
 MonoBehaviour:
   m_ObjectHideFlags: 0

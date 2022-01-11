@@ -26,7 +26,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void Move(Vector2 movementDirection)
         {
-            _characterController.Move(new Vector3(movementDirection.x, Physics.gravity.y, movementDirection.y) * _settings.Speed * Time.deltaTime);
+            _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * new Vector3(movementDirection.x, Physics.gravity.y, movementDirection.y) * _settings.Speed * Time.deltaTime);
         }
     }
 }
