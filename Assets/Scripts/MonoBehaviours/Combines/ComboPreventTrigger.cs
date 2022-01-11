@@ -12,6 +12,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         [SerializeField] private Renderer _renderer;
         [SerializeField] private ComboPreventingChangerRulesSettingsSO _rulesSettings;
 
+        public Material CurrentMaterial => _renderer.material;
+
         int _changeIndex = -1;
 
         private void Awake()
@@ -26,9 +28,9 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
             }
         }
 
-        private void OnCollisionEnter(Collision collision)
+        private void OnTriggerEnter(Collider other)
         {
-            if (!collision.gameObject.TryGetComponent(out ComboObject comboObject)) return;
+            if (!other.gameObject.TryGetComponent(out ComboObject comboObject)) return;
 
             if (comboObject.ComboObjectType != _type)
             {
