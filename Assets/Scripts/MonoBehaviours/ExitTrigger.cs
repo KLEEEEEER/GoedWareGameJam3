@@ -11,6 +11,9 @@ namespace GoedWareGameJam3.MonoBehaviours
         [SerializeField] private GameObject _exitForceField;
         [SerializeField] private Transform[] _animationPoints;
 
+        [SerializeField] private GameObject _victoryFloor;
+        [SerializeField] private GameObject _victoryTrigger;
+
         private int _animationPointsCount = 0;
 
         private void Start()
@@ -30,7 +33,9 @@ namespace GoedWareGameJam3.MonoBehaviours
         {
             comboObject.Draggable.Unhold();
             comboObject.Draggable.DisableDragging();
-            comboObject.SetKinematic();
+            comboObject.SetKinematic(); 
+            _victoryFloor.gameObject.SetActive(true);
+            _victoryTrigger.gameObject.SetActive(true);
 
             Sequence animationSequence = DOTween.Sequence();
             for (int i = 0; i < _animationPoints.Length; i++)

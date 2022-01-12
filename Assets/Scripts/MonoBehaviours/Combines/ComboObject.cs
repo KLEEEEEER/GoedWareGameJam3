@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using GoedWareGameJam3.Core.Interfaces;
 
 namespace GoedWareGameJam3.MonoBehaviours.Combines
 {
     [RequireComponent(typeof(Draggable))]
     [RequireComponent(typeof(Rigidbody))]
-    public class ComboObject : MonoBehaviour
+    public class ComboObject : MonoBehaviour, IFallPreventable
     {
         public enum Type
         {
@@ -84,6 +85,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         public void SetKinematic()
         {
             _rigidbody.isKinematic = true;
+        }
+
+        public void PreventFalling()
+        {
+            ReturnToInitPosition();
         }
     }
 }
