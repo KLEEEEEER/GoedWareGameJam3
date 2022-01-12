@@ -10,6 +10,9 @@ namespace GoedWareGameJam3.MonoBehaviours
     {
         public Action OnUnhold;
 
+        private bool _canBeDragged = true;
+        public bool CanBeDragged => _canBeDragged;
+
         [SerializeField] private float _unholdDistance = 2f;
         public float UnholdDistance => _unholdDistance;
 
@@ -24,6 +27,16 @@ namespace GoedWareGameJam3.MonoBehaviours
         public void Unhold()
         {
             OnUnhold?.Invoke();
+        }
+
+        public void EnableDragging()
+        {
+            _canBeDragged = true;
+        }
+
+        public void DisableDragging()
+        {
+            _canBeDragged = false;
         }
 
         private void OnDrawGizmos()

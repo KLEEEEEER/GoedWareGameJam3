@@ -39,6 +39,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             {
                 if (collider.gameObject.TryGetComponent(out Draggable draggable))
                 {
+                    if (!draggable.CanBeDragged) continue;
+
                     //Debug.Log("There is Draggable in hold radius");
                     //float distance = Vector3.Distance(transform.position, draggable.transform.position);
                     float distance = (draggable.transform.position - transform.position).sqrMagnitude;

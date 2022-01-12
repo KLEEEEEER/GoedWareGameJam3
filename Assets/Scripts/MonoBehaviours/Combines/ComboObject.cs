@@ -7,6 +7,7 @@ using DG.Tweening;
 namespace GoedWareGameJam3.MonoBehaviours.Combines
 {
     [RequireComponent(typeof(Draggable))]
+    [RequireComponent(typeof(Rigidbody))]
     public class ComboObject : MonoBehaviour
     {
         public enum Type
@@ -20,7 +21,9 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         public Type ComboObjectType => _type;
 
         private Vector3 _instantiatedPosition;
+        private Rigidbody _rigidbody;
         private Draggable _draggable;
+        public Draggable Draggable => _draggable;
 
         private int _currentComboType;
         private int _maxTypesAmount;
@@ -34,6 +37,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
             _currentComboType = (int)_type;
 
             _draggable = GetComponent<Draggable>();
+            _rigidbody = GetComponent<Rigidbody>();
         }
 
         private void Start()
@@ -75,6 +79,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         {
             _draggable.Unhold();
             transform.position = _instantiatedPosition;
+        }
+
+        public void SetKinematic()
+        {
+            _rigidbody.isKinematic = true;
         }
     }
 }
