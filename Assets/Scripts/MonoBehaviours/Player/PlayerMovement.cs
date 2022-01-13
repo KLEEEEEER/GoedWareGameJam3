@@ -7,11 +7,13 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 {
     [RequireComponent(typeof(PlayerInputs))]
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(PlayerAnimation))]
     public class PlayerMovement : MonoBehaviour, IFallPreventable
     {
         [SerializeField] private PlayerSettingsSO _settings;
 
         private PlayerInputs _playerInputs;
+        private PlayerAnimation _playerAnimation;
         private CharacterController _characterController;
 
         private Vector3 _startPosition;
@@ -19,6 +21,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private void Awake()
         {
             _playerInputs = GetComponent<PlayerInputs>();
+            _playerAnimation = GetComponent<PlayerAnimation>();
             _characterController = GetComponent<CharacterController>();
         }
 
@@ -34,7 +37,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void Move(Vector2 movementDirection)
         {
-            _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * new Vector3(movementDirection.x, Physics.gravity.y, movementDirection.y) * _settings.Speed * Time.deltaTime);
+            Vector3 movement = new Vector3(movementDirection.x, 0f, movementDirection.y) * _settings.Speed * Time.deltaTime;
+            Vector3 movementWithGravity = movement + Physics.gravity;
+            _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * movementWithGravity);
+            _playerAnimation.SetDirection(movementDirection.normalized.x);
+            _playerAnimation.SetSpeed(movement.normalized.sqrMagnitude);
         }
 
         public void PreventFalling()
