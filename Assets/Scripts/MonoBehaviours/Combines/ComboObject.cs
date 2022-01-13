@@ -54,6 +54,9 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
             {
                 if (comboObject.ComboObjectType == ComboObjectType && _currentComboType <= (_maxTypesAmount - 1))
                 {
+                    comboObject.Draggable.Unhold();
+                    Draggable.Unhold();
+
                     comboObject.Touch();
                     Touch();
 
@@ -79,12 +82,17 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         public void ReturnToInitPosition()
         {
             _draggable.Unhold();
-            transform.position = _instantiatedPosition;
+            transform.position = _instantiatedPosition + new Vector3(0f, 2f, 0f);
         }
 
         public void SetKinematic()
         {
             _rigidbody.isKinematic = true;
+        }
+
+        public void SetNotKinematic()
+        {
+            _rigidbody.isKinematic = false;
         }
 
         public void PreventFalling()

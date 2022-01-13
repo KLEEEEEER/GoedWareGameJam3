@@ -51,6 +51,14 @@ namespace GoedWareGameJam3
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""0119b468-9250-4722-a6e3-542b46dd697f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -293,6 +301,39 @@ namespace GoedWareGameJam3
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""28707890-603c-425e-a6bf-73aeef807a58"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8830ff9e-38e0-40c2-9dd5-381729bff988"",
+                    ""path"": ""<DualShockGamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a83b0102-3f45-4a0e-8a45-0a8d028929fa"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -874,6 +915,7 @@ namespace GoedWareGameJam3
             m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
             m_Player_Hold = m_Player.FindAction("Hold", throwIfNotFound: true);
             m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
+            m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -939,6 +981,7 @@ namespace GoedWareGameJam3
         private readonly InputAction m_Player_Look;
         private readonly InputAction m_Player_Hold;
         private readonly InputAction m_Player_Interact;
+        private readonly InputAction m_Player_Jump;
         public struct PlayerActions
         {
             private @KeyInputActions m_Wrapper;
@@ -947,6 +990,7 @@ namespace GoedWareGameJam3
             public InputAction @Look => m_Wrapper.m_Player_Look;
             public InputAction @Hold => m_Wrapper.m_Player_Hold;
             public InputAction @Interact => m_Wrapper.m_Player_Interact;
+            public InputAction @Jump => m_Wrapper.m_Player_Jump;
             public InputActionMap Get() { return m_Wrapper.m_Player; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -968,6 +1012,9 @@ namespace GoedWareGameJam3
                     @Interact.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteract;
                     @Interact.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteract;
                     @Interact.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteract;
+                    @Jump.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
+                    @Jump.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
+                    @Jump.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
                 }
                 m_Wrapper.m_PlayerActionsCallbackInterface = instance;
                 if (instance != null)
@@ -984,6 +1031,9 @@ namespace GoedWareGameJam3
                     @Interact.started += instance.OnInteract;
                     @Interact.performed += instance.OnInteract;
                     @Interact.canceled += instance.OnInteract;
+                    @Jump.started += instance.OnJump;
+                    @Jump.performed += instance.OnJump;
+                    @Jump.canceled += instance.OnJump;
                 }
             }
         }
@@ -1144,6 +1194,7 @@ namespace GoedWareGameJam3
             void OnLook(InputAction.CallbackContext context);
             void OnHold(InputAction.CallbackContext context);
             void OnInteract(InputAction.CallbackContext context);
+            void OnJump(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {

@@ -10,6 +10,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         public Action OnInteractPressed;
         public Action OnHoldPressed;
         public Action OnHoldReleased;
+        public Action OnJumpPressed;
 
         private KeyInputActions _keyInputActions;
 
@@ -24,6 +25,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _keyInputActions.Player.Hold.started += HoldStarted;
             _keyInputActions.Player.Hold.canceled += HoldCanceled;
             _keyInputActions.Player.Interact.started += InteractPressed;
+            _keyInputActions.Player.Jump.started += JumpPressed;
         }
 
         private void OnDisable()
@@ -31,6 +33,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _keyInputActions.Player.Hold.started -= HoldStarted;
             _keyInputActions.Player.Hold.canceled -= HoldCanceled;
             _keyInputActions.Player.Interact.started -= InteractPressed;
+            _keyInputActions.Player.Jump.started -= JumpPressed;
         }
 
         private void HoldStarted(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -46,6 +49,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private void InteractPressed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
         {
             OnInteractPressed?.Invoke();
+        }
+
+        private void JumpPressed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+        {
+            OnJumpPressed?.Invoke();
         }
 
         public void ActivateInput()

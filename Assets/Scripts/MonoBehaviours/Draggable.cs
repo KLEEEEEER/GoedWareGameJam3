@@ -8,6 +8,7 @@ namespace GoedWareGameJam3.MonoBehaviours
     [RequireComponent(typeof(Rigidbody))]
     public class Draggable : MonoBehaviour
     {
+        public Action OnHold;
         public Action OnUnhold;
 
         private bool _canBeDragged = true;
@@ -24,6 +25,11 @@ namespace GoedWareGameJam3.MonoBehaviours
             _rigidbody = GetComponent<Rigidbody>();
         }
 
+        public void Hold()
+        {
+            OnHold?.Invoke();
+        }
+
         public void Unhold()
         {
             OnUnhold?.Invoke();
@@ -37,6 +43,13 @@ namespace GoedWareGameJam3.MonoBehaviours
         public void DisableDragging()
         {
             _canBeDragged = false;
+        }
+
+        public void Move(Vector3 movement)
+        {
+            Debug.Log($"Move on {gameObject.name}");
+            _rigidbody.AddForce(movement * 10f, ForceMode.VelocityChange);
+            _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, 10f);
         }
 
         private void OnDrawGizmos()

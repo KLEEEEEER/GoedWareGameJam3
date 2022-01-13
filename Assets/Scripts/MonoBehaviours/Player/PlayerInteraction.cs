@@ -15,6 +15,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private PlayerInputs _playerInputs;
 
         private Draggable _currentDraggable;
+        public Draggable CurrentDraggable => _currentDraggable;
+
         private IInteractable _currentInteractable;
 
         private void Awake()
@@ -27,6 +29,13 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerInputs.OnHoldPressed += OnHoldPressed;
             _playerInputs.OnHoldReleased += OnHoldReleased;
             _playerInputs.OnInteractPressed += OnInteractPressed;
+        }
+
+        private void OnDisable()
+        {
+            _playerInputs.OnHoldPressed -= OnHoldPressed;
+            _playerInputs.OnHoldReleased -= OnHoldReleased;
+            _playerInputs.OnInteractPressed -= OnInteractPressed;
         }
 
         private void OnHoldPressed()
@@ -54,9 +63,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
             if (closestDraggable != null)
             {
-                _currentDraggable = closestDraggable;
-                _currentDraggable.OnUnhold += Unhold;
-                _currentDraggable.transform.SetParent(transform);
+                Hold(closestDraggable);
             }
         }
 
@@ -118,10 +125,19 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             Unhold();
         }
 
+        private void Hold(Draggable draggable)
+        {
+            Debug.Log($"Hold on {draggable.gameObject.name}");
+            _currentDraggable = draggable;
+            _currentDraggable.Hold();
+            _currentDraggable.OnUnhold += Unhold;
+            //_currentDraggable.transform.SetParent(transform);
+        }
+
         private void Unhold()
         {
             Debug.Log("Unhold");
-            _currentDraggable.transform.SetParent(null);
+            //_currentDraggable.transform.SetParent(null);
             _currentDraggable.OnUnhold -= Unhold;
             _currentDraggable = null;
         }

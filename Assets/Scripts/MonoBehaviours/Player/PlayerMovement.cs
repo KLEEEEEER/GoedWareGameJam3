@@ -8,12 +8,14 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
     [RequireComponent(typeof(PlayerInputs))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(PlayerAnimation))]
+    [RequireComponent(typeof(PlayerInteraction))]
     public class PlayerMovement : MonoBehaviour, IFallPreventable
     {
         [SerializeField] private PlayerSettingsSO _settings;
 
         private PlayerInputs _playerInputs;
         private PlayerAnimation _playerAnimation;
+        private PlayerInteraction _playerInteraction;
         private CharacterController _characterController;
 
         private Vector3 _startPosition;
@@ -23,6 +25,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerInputs = GetComponent<PlayerInputs>();
             _playerAnimation = GetComponent<PlayerAnimation>();
             _characterController = GetComponent<CharacterController>();
+            _playerInteraction = GetComponent<PlayerInteraction>();
         }
 
         private void Start()
@@ -42,6 +45,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * movementWithGravity);
             _playerAnimation.SetDirection(movementDirection.normalized.x);
             _playerAnimation.SetSpeed(movement.normalized.sqrMagnitude);
+
+            if (_playerInteraction.CurrentDraggable != null)
+            {
+                _playerInteraction.CurrentDraggable.Move(movement);
+            }
         }
 
         public void PreventFalling()
@@ -49,6 +57,15 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _characterController.enabled = false;
             transform.position = _startPosition;
             _characterController.enabled = true;
+        }
+
+        public void Activate()
+        {
+            _characterController.enabled = true;
+        }
+        public void Deactivate()
+        {
+            _characterController.enabled = false;
         }
     }
 }
