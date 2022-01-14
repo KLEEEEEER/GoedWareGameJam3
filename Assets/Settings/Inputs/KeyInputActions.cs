@@ -59,6 +59,14 @@ namespace GoedWareGameJam3
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Restart"",
+                    ""type"": ""Button"",
+                    ""id"": ""814911bf-88b6-4c0c-91a4-91f5944fd923"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -334,6 +342,39 @@ namespace GoedWareGameJam3
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""721a734a-9e8a-45d1-a4cf-b10bc65349e5"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Restart"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2eec484d-f021-485a-b9e3-db7ef8e8ea43"",
+                    ""path"": ""<DualShockGamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Restart"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6c16f3df-3898-40e3-8ace-55d2d8b16697"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Restart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -916,6 +957,7 @@ namespace GoedWareGameJam3
             m_Player_Hold = m_Player.FindAction("Hold", throwIfNotFound: true);
             m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
             m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+            m_Player_Restart = m_Player.FindAction("Restart", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -982,6 +1024,7 @@ namespace GoedWareGameJam3
         private readonly InputAction m_Player_Hold;
         private readonly InputAction m_Player_Interact;
         private readonly InputAction m_Player_Jump;
+        private readonly InputAction m_Player_Restart;
         public struct PlayerActions
         {
             private @KeyInputActions m_Wrapper;
@@ -991,6 +1034,7 @@ namespace GoedWareGameJam3
             public InputAction @Hold => m_Wrapper.m_Player_Hold;
             public InputAction @Interact => m_Wrapper.m_Player_Interact;
             public InputAction @Jump => m_Wrapper.m_Player_Jump;
+            public InputAction @Restart => m_Wrapper.m_Player_Restart;
             public InputActionMap Get() { return m_Wrapper.m_Player; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -1015,6 +1059,9 @@ namespace GoedWareGameJam3
                     @Jump.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
                     @Jump.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
                     @Jump.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
+                    @Restart.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRestart;
+                    @Restart.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRestart;
+                    @Restart.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRestart;
                 }
                 m_Wrapper.m_PlayerActionsCallbackInterface = instance;
                 if (instance != null)
@@ -1034,6 +1081,9 @@ namespace GoedWareGameJam3
                     @Jump.started += instance.OnJump;
                     @Jump.performed += instance.OnJump;
                     @Jump.canceled += instance.OnJump;
+                    @Restart.started += instance.OnRestart;
+                    @Restart.performed += instance.OnRestart;
+                    @Restart.canceled += instance.OnRestart;
                 }
             }
         }
@@ -1195,6 +1245,7 @@ namespace GoedWareGameJam3
             void OnHold(InputAction.CallbackContext context);
             void OnInteract(InputAction.CallbackContext context);
             void OnJump(InputAction.CallbackContext context);
+            void OnRestart(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {
