@@ -100,5 +100,16 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         {
             ReturnToInitPosition();
         }
+
+        public Tween GetEvaporateTween()
+        {
+            _draggable.Unhold();
+            _draggable.ResetVelocity();
+            SetKinematic();
+
+            return transform.DOScale(0, 0.5f).OnComplete(() => {
+                Destroy(gameObject);
+            });
+        }
     }
 }
