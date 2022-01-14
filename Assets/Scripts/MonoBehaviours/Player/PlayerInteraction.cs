@@ -129,6 +129,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         {
             Debug.Log($"Hold on {draggable.gameObject.name}");
             _currentDraggable = draggable;
+            _currentDraggable.ResetVelocity();
             _currentDraggable.Hold();
             _currentDraggable.OnUnhold += Unhold;
             //_currentDraggable.transform.SetParent(transform);

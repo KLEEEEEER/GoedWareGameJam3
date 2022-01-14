@@ -82,6 +82,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         public void ReturnToInitPosition()
         {
             _draggable.Unhold();
+            _draggable.ResetVelocity();
             transform.position = _instantiatedPosition + new Vector3(0f, 2f, 0f);
         }
 

@@ -52,6 +52,12 @@ namespace GoedWareGameJam3.MonoBehaviours
             _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, 10f);
         }
 
+        public void ResetVelocity()
+        {
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
