@@ -43,7 +43,10 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             Vector3 movement = new Vector3(movementDirection.x, 0f, movementDirection.y) * _settings.Speed * Time.deltaTime;
             Vector3 movementWithGravity = movement + Physics.gravity;
             _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * movementWithGravity);
-            _playerAnimation.SetDirection(movementDirection.normalized.x);
+            if (movementDirection.normalized.x != 0f)
+            {
+                _playerAnimation.SetDirection(movementDirection.normalized.x);
+            }
             _playerAnimation.SetSpeed(movement.normalized.sqrMagnitude);
 
             if (_playerInteraction.CurrentDraggable != null)

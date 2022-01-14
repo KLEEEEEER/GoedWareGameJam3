@@ -48,8 +48,8 @@ namespace GoedWareGameJam3.MonoBehaviours
         public void Move(Vector3 movement)
         {
             Debug.Log($"Move on {gameObject.name}");
-            _rigidbody.AddForce(movement * 10f, ForceMode.VelocityChange);
-            _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, 10f);
+            _rigidbody.AddForce(movement * 11f, ForceMode.VelocityChange);
+            _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, 8f);
         }
 
         public void ResetVelocity()

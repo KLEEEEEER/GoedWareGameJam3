@@ -33,7 +33,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             IJumpable closestJumpable = null;
             float closestJumpableDistance = float.MaxValue;
 
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 3f);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 5f);
             foreach (Collider collider in colliders)
             {
                 if (collider.gameObject.TryGetComponent(out IJumpable jumpable))
