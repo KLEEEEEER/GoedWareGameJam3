@@ -1,34 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GoedWareGameJam3.MonoBehaviours
 {
-    public class MainMenuUI : MonoBehaviour
+    public class GameplayUI : MonoBehaviour
     {
-        [SerializeField] private Button _startButton;
         [SerializeField] private CanvasGroup _blackScreen;
-        [SerializeField] private float _timeToFadeOut = 1f;
+        private float _timeToFadeOut = 0.3f;
+
+        private static GameplayUI _instance;
+        public static GameplayUI Instance => _instance;
+
+        private void Awake()
+        {
+            if (_instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            _instance = this;
+        }
 
         private void Start()
         {
             StartCoroutine(FadeOutBlackScreen());
         }
 
-        private void OnEnable()
+        public void FadeIn(float time)
         {
-            _startButton.onClick.AddListener(LoadFirstLevel);
-        }
-
-        private void OnDisable()
-        {
-            _startButton.onClick.RemoveListener(LoadFirstLevel);
-        }
-
-        private void LoadFirstLevel()
-        {
-            StartCoroutine(FadeInBlackScreen());
+            StartCoroutine(FadeInBlackScreen(time));
         }
 
         private IEnumerator FadeOutBlackScreen()
@@ -43,17 +45,16 @@ namespace GoedWareGameJam3.MonoBehaviours
             }
         }
 
-        private IEnumerator FadeInBlackScreen()
+        private IEnumerator FadeInBlackScreen(float fadeTime = 1f)
         {
             float time = 0f;
             while (time <= _timeToFadeOut)
             {
-                _blackScreen.alpha = Mathf.Lerp(0f, 1f, time / _timeToFadeOut);
+                _blackScreen.alpha = Mathf.Lerp(0f, 1f, time / fadeTime);
 
                 time += Time.deltaTime;
                 yield return null;
             }
-            Gameplay.Instance.LoadScene(1);
         }
     }
 }

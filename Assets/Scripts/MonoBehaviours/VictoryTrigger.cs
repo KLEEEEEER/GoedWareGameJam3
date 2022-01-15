@@ -12,6 +12,14 @@ namespace GoedWareGameJam3.MonoBehaviours
         {
             if (!other.gameObject.TryGetComponent(out PlayerInteraction playerInteraction)) return;
 
+            StartCoroutine(LoadingNewSceneCoroutine());
+        }
+
+        private IEnumerator LoadingNewSceneCoroutine()
+        {
+            GameplayUI.Instance.FadeIn(0.3f);
+            yield return new WaitForSeconds(0.4f);
+            Debug.Log($"Loading scene with index {_nextLevelSceneIndex}");
             Gameplay.Instance.LoadScene(_nextLevelSceneIndex);
         }
     }

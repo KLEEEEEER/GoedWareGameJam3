@@ -36,12 +36,13 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
             Sequence movement = DOTween.Sequence();
             movement.Append(_comboObject.transform.DOMove(_ladderPosition.position, 0.5f));
             movement.Join(_comboObject.transform.DORotateQuaternion(_ladderPosition.rotation, 0.5f));
-            movement.AppendCallback(() => { _comboObject.SetNotKinematic(); });
+            movement.AppendCallback(() => {
+                _placeSound.Play(); 
+                _comboObject.SetNotKinematic(); 
+            });
 
             _comboObject.Draggable.OnHold += RemoveComboObject;
             _comboObject.Draggable.OnUnhold += RemoveComboObject;
-
-            _placeSound.Play();
         }
 
         private void RemoveComboObject()
