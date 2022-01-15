@@ -54,6 +54,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
             {
                 if (comboObject.ComboObjectType == ComboObjectType && _currentComboType <= (_maxTypesAmount - 1))
                 {
+                    ComboObjectFactory.Instance.PlayCombineSound();
+
                     comboObject.Draggable.Unhold();
                     Draggable.Unhold();
 
@@ -62,14 +64,17 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
 
                     Debug.Log($"Creating comboObject of type {(Type)(_currentComboType + 1)} at {transform.position}");
 
-                    comboObject.transform.DOScale(0, 0.2f).OnComplete(() => {
+                    comboObject.transform.DOScale(0, 0.4f).OnComplete(() => {
                         Destroy(comboObject.gameObject);
                     });
 
-                    transform.DOScale(0, 0.2f).OnComplete(() => {
+                    transform.DOScale(0, 0.4f).OnComplete(() => {
                         ComboObjectFactory.Instance.Create((Type)(_currentComboType + 1), transform.position);
                         Destroy(gameObject);
                     });
+
+                    comboObject.transform.DOMove(collision.contacts[0].point, 0.2f);
+                    transform.DOMove(collision.contacts[0].point, 0.2f);
                 }
             }
         }
@@ -83,7 +88,20 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         {
             _draggable.Unhold();
             _draggable.ResetVelocity();
-            transform.position = _instantiatedPosition + new Vector3(0f, 2f, 0f);
+            SetKinematic();
+
+            Sequence returningAnimation = DOTween.Sequence();
+            Vector3 startScale = transform.localScale;
+
+            returningAnimation.Append(transform.DOMoveY(transform.position.y + 3f, 0.4f));
+            returningAnimation.Append(transform.DOScale(0f, 0.3f));
+
+            returningAnimation.AppendCallback(() =>
+            {
+                transform.position = _instantiatedPosition + new Vector3(0f, 2f, 0f);
+                transform.DOScale(startScale.x, 0f);
+                SetNotKinematic();
+            });
         }
 
         public void SetKinematic()

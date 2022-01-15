@@ -12,6 +12,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         [SerializeField] private Transform[] _jumpPoints;
 
         [SerializeField] private Transform _ladderPosition;
+        [SerializeField] private AudioSource _placeSound;
         private ComboObject _comboObject;
 
         public bool CanBeJumped => _comboObject != null;
@@ -39,6 +40,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
 
             _comboObject.Draggable.OnHold += RemoveComboObject;
             _comboObject.Draggable.OnUnhold += RemoveComboObject;
+
+            _placeSound.Play();
         }
 
         private void RemoveComboObject()

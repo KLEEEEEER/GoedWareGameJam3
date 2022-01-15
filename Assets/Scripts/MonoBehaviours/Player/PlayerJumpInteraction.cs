@@ -9,8 +9,12 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
     [RequireComponent(typeof(PlayerMovement))]
     public class PlayerJumpInteraction : MonoBehaviour
     {
+        [SerializeField] private SpriteRenderer _jumpButtonSprite;
+
         private PlayerMovement _playerMovement;
         private PlayerInputs _playerInputs;
+
+        private IJumpable _currentJumpable;
 
         private void Awake()
         {
@@ -28,12 +32,12 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerInputs.OnJumpPressed -= OnJumpPressed;
         }
 
-        private void OnJumpPressed()
+        private void FixedUpdate()
         {
             IJumpable closestJumpable = null;
             float closestJumpableDistance = float.MaxValue;
 
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 5f);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 4f);
             foreach (Collider collider in colliders)
             {
                 if (collider.gameObject.TryGetComponent(out IJumpable jumpable))
@@ -53,7 +57,29 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
             if (closestJumpable != null)
             {
-                closestJumpable.Jump(this);
+                _currentJumpable = closestJumpable;
+
+                if (!_jumpButtonSprite.gameObject.activeInHierarchy)
+                {
+                    _jumpButtonSprite.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                _currentJumpable = null;
+
+                if (_jumpButtonSprite.gameObject.activeInHierarchy)
+                {
+                    _jumpButtonSprite.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private void OnJumpPressed()
+        {
+            if (_currentJumpable != null)
+            {
+                _currentJumpable.Jump(this);
             }
         }
 

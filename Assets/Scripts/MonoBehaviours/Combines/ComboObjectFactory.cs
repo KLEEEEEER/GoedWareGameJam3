@@ -8,6 +8,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
     public class ComboObjectFactory : MonoBehaviour
     {
         [SerializeField] private ComboObjectPrefab[] _prefabs;
+        [SerializeField] private AudioSource _combineSound;
 
         Dictionary<ComboObject.Type, GameObject> _prefabsDictionary = new Dictionary<ComboObject.Type, GameObject>();
 
@@ -34,6 +35,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
             createdComboObject.transform.localScale = Vector3.zero;
 
             createdComboObject.transform.DOScale(instantiatedScale, 0.1f);
+        }
+
+        public void PlayCombineSound()
+        {
+            _combineSound.Play();
         }
     }
 

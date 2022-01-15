@@ -10,6 +10,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         [SerializeField] private Transform _comboObjectPosition1;
         [SerializeField] private Transform _comboObjectPosition2;
 
+        [SerializeField] private AudioSource _comboSound;
+
         private void OnCollisionEnter(Collision collision)
         {
             if (!collision.gameObject.TryGetComponent(out ComboObject comboObject)) return;
@@ -28,6 +30,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
 
         private void Divide(ComboObject comboObject, ComboObject.Type type)
         {
+            _comboSound.Play();
+
             Sequence divide = DOTween.Sequence();
 
             divide.Append(comboObject.GetEvaporateTween()).OnComplete(() => 

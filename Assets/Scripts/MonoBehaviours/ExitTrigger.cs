@@ -14,6 +14,8 @@ namespace GoedWareGameJam3.MonoBehaviours
         [SerializeField] private GameObject _victoryFloor;
         [SerializeField] private GameObject _victoryTrigger;
 
+        [SerializeField] private AudioSource _placingCubeSound;
+
         private int _animationPointsCount = 0;
 
         private void Start()
@@ -31,6 +33,8 @@ namespace GoedWareGameJam3.MonoBehaviours
 
         private void StartAnimation(ComboObject comboObject)
         {
+            _placingCubeSound.Play();
+
             comboObject.Draggable.Unhold();
             comboObject.Draggable.DisableDragging();
             comboObject.SetKinematic(); 

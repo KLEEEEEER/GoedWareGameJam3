@@ -16,9 +16,23 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _animator.SetFloat("Speed", speed);
         }
 
-        public void SetDirection(float direction)
+        public void SetHorizontalDirection(float direction)
         {
-            _animator.SetFloat("Direction", direction);
+            _animator.SetFloat("Direction", Mathf.Round(direction));
+        }
+
+        public void SetVerticalDirection(float direction)
+        {
+            if (direction == 0f)
+            {
+                _animator.SetBool("IsVertical", false);
+            }
+            else
+            {
+                _animator.SetBool("IsVertical", true);
+            }
+
+            _animator.SetFloat("VerticalDirection", Mathf.Round(direction));
         }
     }
 }

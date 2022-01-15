@@ -6,6 +6,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
     [RequireComponent(typeof(Renderer))]
     public class ComboPreventTriggerChanger : MonoBehaviour, IInteractable
     {
+        [SerializeField] private AudioSource _audioSource;
         [SerializeField] private ComboPreventTrigger _trigger;
         private Renderer _renderer;
 
@@ -22,6 +23,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
         public void Interact()
         {
             _trigger.ChangeType();
+            _audioSource.Play();
             SetScreenMaterial(_trigger.CurrentMaterial);
         }
 

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.11616826, g: 0.09958974, b: 0.032167777, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -204,6 +204,14 @@ PrefabInstance:
       value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -985090817568614545, guid: 18bbe41cbaf71b343b7560d8c46efe60, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: efee43110af4d6a4f884eb70b31210bf, type: 2}
+    - target: {fileID: -985090817568614545, guid: 18bbe41cbaf71b343b7560d8c46efe60, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: efee43110af4d6a4f884eb70b31210bf, type: 2}
+    - target: {fileID: -985090817568614545, guid: 18bbe41cbaf71b343b7560d8c46efe60, type: 3}
       propertyPath: m_Materials.Array.data[2]
       value: 
       objectReference: {fileID: 2100000, guid: efee43110af4d6a4f884eb70b31210bf, type: 2}
@@ -257,6 +265,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 18bbe41cbaf71b343b7560d8c46efe60, type: 3}
+--- !u!1 &98599875 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -6765199829644114249, guid: 18bbe41cbaf71b343b7560d8c46efe60, type: 3}
+  m_PrefabInstance: {fileID: 98599874}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &98599876
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98599875}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.5180548, y: 0.07100228, z: 0.026666708}
+  m_Center: {x: 0.037158906, y: 0.02670114, z: -0.1605493}
 --- !u!1 &133157075 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -5597448136126451749, guid: 18bbe41cbaf71b343b7560d8c46efe60, type: 3}

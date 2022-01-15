@@ -12,6 +12,9 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
     public class PlayerMovement : MonoBehaviour, IFallPreventable
     {
         [SerializeField] private PlayerSettingsSO _settings;
+        [SerializeField] private AudioClip[] _footstepsSounds;
+        [SerializeField] private AudioSource _footstepsSource;
+        [SerializeField] private float _timeBetweenFootsteps = 0.3f;
 
         private PlayerInputs _playerInputs;
         private PlayerAnimation _playerAnimation;
@@ -19,6 +22,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private CharacterController _characterController;
 
         private Vector3 _startPosition;
+
+        private float _timeFromPreviousFootstepPlayed = 0f;
 
         private void Awake()
         {
@@ -40,13 +45,28 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void Move(Vector2 movementDirection)
         {
+            if (movementDirection.normalized.sqrMagnitude > 0f && _timeFromPreviousFootstepPlayed >= _timeBetweenFootsteps)
+            {
+                AudioClip randomFootstep = _footstepsSounds[Random.Range(0, _footstepsSounds.Length)];
+                _footstepsSource.clip = randomFootstep;
+                _footstepsSource.pitch = Random.Range(0.8f, 1.2f);
+                _footstepsSource.Play();
+                _timeFromPreviousFootstepPlayed = 0f;
+            }
+            else
+            {
+                _timeFromPreviousFootstepPlayed += Time.deltaTime;
+            }
+
             Vector3 movement = new Vector3(movementDirection.x, 0f, movementDirection.y) * _settings.Speed * Time.deltaTime;
             Vector3 movementWithGravity = movement + Physics.gravity;
             _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * movementWithGravity);
             if (movementDirection.normalized.x != 0f)
             {
-                _playerAnimation.SetDirection(movementDirection.normalized.x);
+                _playerAnimation.SetHorizontalDirection(movementDirection.normalized.x);
             }
+            _playerAnimation.SetVerticalDirection(movementDirection.normalized.y);
+
             _playerAnimation.SetSpeed(movement.normalized.sqrMagnitude);
 
             if (_playerInteraction.CurrentDraggable != null)

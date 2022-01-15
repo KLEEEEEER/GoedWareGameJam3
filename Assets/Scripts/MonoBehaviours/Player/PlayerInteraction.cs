@@ -11,6 +11,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         [SerializeField] private float _dragRadius = 2f;
         [SerializeField] private LayerMask _draggableMask;
         [SerializeField] private LayerMask _interactableMask;
+        [SerializeField] private SpriteRenderer _interactionButtonSprite;
 
         private PlayerInputs _playerInputs;
 
@@ -101,16 +102,28 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             if (closestInteractable != null)
             {
                 _currentInteractable = closestInteractable;
+
+                if (!_interactionButtonSprite.gameObject.activeInHierarchy)
+                {
+                    _interactionButtonSprite.gameObject.SetActive(true);
+                }
             }
             else
             {
+                if (_interactionButtonSprite.gameObject.activeInHierarchy)
+                {
+                    _interactionButtonSprite.gameObject.SetActive(false);
+                }
                 _currentInteractable = null;
             }
         }
 
         private void Update()
         {
-            if (_currentDraggable == null) return;
+            if (_currentDraggable == null) 
+            { 
+                return; 
+            }
 
             if (Vector3.Distance(_currentDraggable.transform.position, transform.position) > _currentDraggable.UnholdDistance)
             {
