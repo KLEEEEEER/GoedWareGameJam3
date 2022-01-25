@@ -26,7 +26,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Combines
                     _changeIndex = Array.IndexOf(_rulesSettings.Rules, comboPreventingRule);
                 }
             }
-            _renderer.material = _rulesSettings.Rules[_changeIndex].Material;
+
+            if (_changeIndex >= 0)
+            {
+                _renderer.material = _rulesSettings.Rules[_changeIndex].Material;
+            }
         }
 
         private void OnTriggerEnter(Collider other)

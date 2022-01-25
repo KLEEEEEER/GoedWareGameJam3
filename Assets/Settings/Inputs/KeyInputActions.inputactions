@@ -266,6 +266,17 @@
                 },
                 {
                     "name": "",
+                    "id": "75b35555-9733-4293-8e87-e18e72d24b6b",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Hold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "263d70db-6534-476c-abb9-c76d89e0e84e",
                     "path": "<Keyboard>/e",
                     "interactions": "",

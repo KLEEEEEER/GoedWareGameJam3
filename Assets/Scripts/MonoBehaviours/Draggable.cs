@@ -52,6 +52,11 @@ namespace GoedWareGameJam3.MonoBehaviours
             _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, 8f);
         }
 
+        public void SetVelocity(Vector3 velocity)
+        {
+            _rigidbody.velocity = velocity;
+        }
+
         public void ResetVelocity()
         {
             _rigidbody.velocity = Vector3.zero;

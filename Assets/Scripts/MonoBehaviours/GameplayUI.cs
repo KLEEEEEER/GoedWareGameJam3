@@ -21,6 +21,8 @@ namespace GoedWareGameJam3.MonoBehaviours
             }
 
             _instance = this;
+
+            _blackScreen.alpha = 1f;
         }
 
         private void Start()

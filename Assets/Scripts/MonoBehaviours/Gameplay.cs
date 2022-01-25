@@ -20,6 +20,9 @@ namespace GoedWareGameJam3
 
             _gameState = new GameState();
             _gameState.TransitionTo(GameState.State.BeforePlay);
+
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         public void LoadScene(int sceneIndex)

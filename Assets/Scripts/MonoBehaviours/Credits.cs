@@ -18,6 +18,11 @@ namespace GoedWareGameJam3.MonoBehaviours
         [SerializeField] private CanvasGroup _blackScreen;
         [SerializeField] private float _timeToFadeOut = 1f;
 
+        private void Awake()
+        {
+            _blackScreen.alpha = 1f;
+        }
+
         private void Start()
         {
             _camera.transform.DOMove(_cameraEndPoint.position, 60f);
@@ -35,6 +40,8 @@ namespace GoedWareGameJam3.MonoBehaviours
                 yield return new WaitForSeconds(3f);
                 yield return FadeOutScreen(creditScreen);
             }
+            yield return StartCoroutine(FadeInBlackScreen());
+            Gameplay.Instance.LoadScene(0);
         }
 
         private IEnumerator FadeInScreen(CanvasGroup screen)
@@ -71,6 +78,18 @@ namespace GoedWareGameJam3.MonoBehaviours
             while (time <= _timeToFadeOut)
             {
                 _blackScreen.alpha = Mathf.Lerp(1f, 0f, time / _timeToFadeOut);
+
+                time += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        private IEnumerator FadeInBlackScreen()
+        {
+            float time = 0f;
+            while (time <= _timeToFadeOut)
+            {
+                _blackScreen.alpha = Mathf.Lerp(0f, 1f, time / _timeToFadeOut);
 
                 time += Time.deltaTime;
                 yield return null;
