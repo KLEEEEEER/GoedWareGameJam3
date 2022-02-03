@@ -11,6 +11,8 @@ namespace GoedWareGameJam3.EditorBehaviour
     {
         private SerializedProperty _height;
         private SerializedProperty _radius;
+        private SerializedProperty _standHeight;
+        private SerializedProperty _standWidth;
 
         private int _childsCount = 0;
         private Transform[] _childObjects;
@@ -23,15 +25,15 @@ namespace GoedWareGameJam3.EditorBehaviour
 
             _height = serializedObject.FindProperty("_height");
             _radius = serializedObject.FindProperty("_radius");
+            _standHeight = serializedObject.FindProperty("_standHeight");
+            _standWidth = serializedObject.FindProperty("_standWidth");
         }
 
         public override void OnInspectorGUI()
         {
-            //base.OnInspectorGUI();
+            base.OnInspectorGUI();
 
-            List<Transform> childObjectsList = new List<Transform>(_targetComponent.GetComponentsInChildren<Transform>());
-            childObjectsList.Remove(_targetComponent.transform);
-            _childObjects = childObjectsList.ToArray();
+            _childObjects = _targetComponent.GetPoints();
 
             _height.floatValue = EditorGUILayout.FloatField("Height: ", _height.floatValue);
             if (_height.floatValue <= 0f)
@@ -45,157 +47,17 @@ namespace GoedWareGameJam3.EditorBehaviour
                 _radius.floatValue = 0.1f;
             }
 
-            GUILayout.Label($"Childen amount: {_childObjects.Length}");
+            GUILayout.Label($"Children amount: {_childObjects.Length}");
 
             if (GUILayout.Button("Generate mesh"))
             {
-                Mesh mesh = new Mesh();
-
-                int childObjectCount = _childObjects.Length;
-
-                if (childObjectCount <= 1) 
-                {
-                    Debug.LogError($"There is less than 2 children objects on {_targetComponent.name} object to generate mesh. Needs more.");
-                    return;
-                }
-
-                Debug.Log($"Generating mesh for {_childObjects.Length - 1} objects");
-
-                Vector3[] vertices = new Vector3[childObjectCount * 4];
-                Vector2[] uv = new Vector2[vertices.Length];
-                int[] triangles = new int[((childObjectCount - 1) * 6 * 3) + 2 * 3 + 2 * 3]; // 2 at the start, 2 at the end and 6 for each point except last.
-
-                int currentIndex = 0;
-                Vector3 perpendicular = Vector3.Cross((_childObjects[currentIndex + 1].position - _childObjects[currentIndex].position).normalized, _childObjects[currentIndex].up);
-
-                //Debug.Log($"perpendicular is {perpendicular}");
-
-                Vector3 localPosition = _childObjects[currentIndex].localPosition;
-
-                int vertexIndex = 0;
-                int triangleIndex = 0;
-
-                vertices[vertexIndex] = localPosition + perpendicular * _radius.floatValue;
-                vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue;
-                vertices[vertexIndex + 2] = localPosition - perpendicular * _radius.floatValue;
-                vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue;
-
-                triangles[triangleIndex++] = vertexIndex;
-                triangles[triangleIndex++] = vertexIndex + 1;
-                triangles[triangleIndex++] = vertexIndex + 2;
-                triangles[triangleIndex++] = vertexIndex + 1;
-                triangles[triangleIndex++] = vertexIndex + 3;
-                triangles[triangleIndex++] = vertexIndex + 2;
-
-                vertexIndex += 4;
-
-                for (int childObjectIndex = 1; childObjectIndex < _childObjects.Length; childObjectIndex++)
-                {
-                    Vector3 childObjectLocalPosition = _childObjects[childObjectIndex].localPosition;
-                    if (childObjectIndex + 1 < _childObjects.Length)
-                    {
-                        Vector3 prevPerpendicular = Vector3.Cross((_childObjects[childObjectIndex - 1].position - _childObjects[childObjectIndex].position).normalized, _childObjects[childObjectIndex].up);
-                        Vector3 nextPerpendicular = Vector3.Cross((_childObjects[childObjectIndex + 1].position - _childObjects[childObjectIndex].position).normalized, _childObjects[childObjectIndex].up);
-
-                        perpendicular = (nextPerpendicular - prevPerpendicular).normalized;
-                    }
-
-                    if (childObjectIndex == _childObjects.Length - 1)
-                    {
-                        perpendicular = Vector3.Cross((_childObjects[childObjectIndex - 1].position - _childObjects[childObjectIndex].position).normalized, _childObjects[childObjectIndex].up);
-                        perpendicular *= -1;
-                        Debug.Log($"perpendicular on last is: {perpendicular}");
-                    }
-
-                    vertices[vertexIndex] = childObjectLocalPosition + perpendicular * _radius.floatValue;
-                    vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue;
-                    vertices[vertexIndex + 2] = childObjectLocalPosition - perpendicular * _radius.floatValue;
-                    vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue;
-
-                    triangles[triangleIndex++] = vertexIndex - 4;
-                    triangles[triangleIndex++] = vertexIndex;
-                    triangles[triangleIndex++] = vertexIndex + 1;
-                    triangles[triangleIndex++] = vertexIndex - 4;
-                    triangles[triangleIndex++] = vertexIndex + 1;
-                    triangles[triangleIndex++] = vertexIndex - 4 + 1;
-
-                    triangles[triangleIndex++] = vertexIndex + 2;
-                    triangles[triangleIndex++] = vertexIndex - 4 + 2;
-                    triangles[triangleIndex++] = vertexIndex - 4 + 3;
-                    triangles[triangleIndex++] = vertexIndex + 2;
-                    triangles[triangleIndex++] = vertexIndex - 4 + 3;
-                    triangles[triangleIndex++] = vertexIndex + 3;
-
-                    triangles[triangleIndex++] = vertexIndex - 4 + 1;
-                    triangles[triangleIndex++] = vertexIndex + 1;
-                    triangles[triangleIndex++] = vertexIndex + 3;
-                    triangles[triangleIndex++] = vertexIndex + 3;
-                    triangles[triangleIndex++] = vertexIndex - 4 + 3;
-                    triangles[triangleIndex++] = vertexIndex - 4 + 1;
-
-                    vertexIndex += 4;
-                }
-
-                vertexIndex -= 4;
-                triangles[triangleIndex++] = vertexIndex;
-                triangles[triangleIndex++] = vertexIndex + 2;
-                triangles[triangleIndex++] = vertexIndex + 1;
-                triangles[triangleIndex++] = vertexIndex + 1;
-                triangles[triangleIndex++] = vertexIndex + 2;
-                triangles[triangleIndex++] = vertexIndex + 3;
-
-                mesh.vertices = vertices;
-                mesh.triangles = triangles;
-                Unwrapping.GenerateSecondaryUVSet(mesh);
-
-
-                mesh.RecalculateBounds();
-                mesh.RecalculateNormals();
-                mesh.RecalculateTangents();
-
-
-                string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-                if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
-                {
-                    AssetDatabase.CreateFolder("Assets/Scenes", $"{sceneName}");
-                }
-                if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}/Meshes"))
-                {
-                    AssetDatabase.CreateFolder($"Assets/Scenes/{sceneName}", "Meshes");
-                }
-                string path = $"Assets/Scenes/{sceneName}/Meshes/{sceneName}_{_targetComponent.name}.asset";
-                AssetDatabase.CreateAsset(mesh, path);
-                AssetDatabase.SaveAssets();
-
-                Mesh loadedMesh = (Mesh)AssetDatabase.LoadAssetAtPath(path, typeof(Mesh));
-                loadedMesh.RecalculateNormals();
-
-                Debug.Log($"loadedMesh.normals = {loadedMesh.normals.Length}");
-                _targetComponent.SetNewMesh(loadedMesh);
+                GenerateForceFieldMesh(_childObjects);
+                GenerateStandMesh(_childObjects);
             }
 
             if (GUILayout.Button("Generate colliders"))
             {
-                if (_childObjects.Length <= 1)
-                {
-                    Debug.LogError($"There is less than 2 children objects on {_targetComponent.name} object to generate colliders. Needs more.");
-                    return;
-                }
-
-                for (int i = 0; i < _childObjects.Length - 1; i++)
-                {
-                    _childObjects[i].LookAt(_childObjects[i + 1]);
-
-                    float magnitude = (_childObjects[i + 1].position - _childObjects[i].position).magnitude;
-
-                    if (!_childObjects[i].gameObject.TryGetComponent(out BoxCollider collider))
-                    {
-                        collider = _childObjects[i].gameObject.AddComponent<BoxCollider>();
-                    }
-                    collider.center = new Vector3(0f, _height.floatValue / 2f, magnitude / 2f);
-                    collider.size = new Vector3(_radius.floatValue * 2f, _height.floatValue, magnitude);
-                    collider.isTrigger = true;
-                }
+                GenerateColliders(_childObjects);
             }
 
 
@@ -224,68 +86,270 @@ namespace GoedWareGameJam3.EditorBehaviour
                 }
 
                 Handles.DrawLine(points[i].position, points[i + 1].position);
-                Handles.DrawLine(points[i].position + Vector3.up * _height.floatValue, points[i + 1].position + Vector3.up * _height.floatValue);
+                Handles.DrawLine(points[i].position + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue), points[i + 1].position + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue));
             }
         }
 
-
-        private Vector2[] CreateUV(ref Mesh mesh)
+        private void GenerateColliders(Transform[] childObjects)
         {
-
-            int i = 0;
-            Vector3 p = Vector3.up;
-            Vector3 u = Vector3.Cross(p, Vector3.forward);
-            if (Vector3.Dot(u, u) < 0.001f)
+            if (childObjects.Length <= 1)
             {
-                u = Vector3.right;
-            }
-            else
-            {
-                u = Vector3.Normalize(u);
+                Debug.LogError($"There is less than 2 children objects on {_targetComponent.name} object to generate colliders. Needs more.");
+                return;
             }
 
-            Vector3 v = Vector3.Normalize(Vector3.Cross(p, u));
-            Vector3[] vertexs = mesh.vertices;
-            int[] tris = mesh.triangles;
-            Vector2[] uvs = new Vector2[vertexs.Length];
-
-            for (i = 0; i < tris.Length; i += 3)
+            for (int i = 0; i < childObjects.Length - 1; i++)
             {
+                childObjects[i].LookAt(childObjects[i + 1]);
 
-                Vector3 a = vertexs[tris[i]];
-                Vector3 b = vertexs[tris[i + 1]];
-                Vector3 c = vertexs[tris[i + 2]];
-                Vector3 side1 = b - a;
-                Vector3 side2 = c - a;
-                Vector3 N = Vector3.Cross(side1, side2);
+                float magnitude = (childObjects[i + 1].position - childObjects[i].position).magnitude;
 
-                N = new Vector3(Mathf.Abs(N.normalized.x), Mathf.Abs(N.normalized.y), Mathf.Abs(N.normalized.z));
-
-
-
-                if (N.x > N.y && N.x > N.z)
+                if (!childObjects[i].gameObject.TryGetComponent(out BoxCollider collider))
                 {
-                    uvs[tris[i]] = new Vector2(vertexs[tris[i]].z, vertexs[tris[i]].y);
-                    uvs[tris[i + 1]] = new Vector2(vertexs[tris[i + 1]].z, vertexs[tris[i + 1]].y);
-                    uvs[tris[i + 2]] = new Vector2(vertexs[tris[i + 2]].z, vertexs[tris[i + 2]].y);
+                    collider = childObjects[i].gameObject.AddComponent<BoxCollider>();
                 }
-                else if (N.y > N.x && N.y > N.z)
-                {
-                    uvs[tris[i]] = new Vector2(vertexs[tris[i]].x, vertexs[tris[i]].z);
-                    uvs[tris[i + 1]] = new Vector2(vertexs[tris[i + 1]].x, vertexs[tris[i + 1]].z);
-                    uvs[tris[i + 2]] = new Vector2(vertexs[tris[i + 2]].x, vertexs[tris[i + 2]].z);
-                }
-                else if (N.z > N.x && N.z > N.y)
-                {
-                    uvs[tris[i]] = new Vector2(vertexs[tris[i]].x, vertexs[tris[i]].y);
-                    uvs[tris[i + 1]] = new Vector2(vertexs[tris[i + 1]].x, vertexs[tris[i + 1]].y);
-                    uvs[tris[i + 2]] = new Vector2(vertexs[tris[i + 2]].x, vertexs[tris[i + 2]].y);
-                }
+                collider.center = new Vector3(0f, _height.floatValue / 2f + _standHeight.floatValue, magnitude / 2f);
+                collider.size = new Vector3(_radius.floatValue * 2f, _height.floatValue + _standHeight.floatValue * 2f, magnitude);
+                collider.isTrigger = true;
+            }
+        }
+        private void GenerateForceFieldMesh(Transform[] childObjects)
+        {
+            Mesh mesh = new Mesh();
 
+            int childObjectCount = childObjects.Length;
+
+            if (childObjectCount <= 1)
+            {
+                Debug.LogError($"There is less than 2 children objects on {_targetComponent.name} object to generate mesh. Needs more.");
+                return;
             }
 
-            mesh.uv = uvs;
-            return uvs;
+            Debug.Log($"Generating mesh for {childObjects.Length - 1} objects");
+
+            Vector3[] vertices = new Vector3[childObjectCount * 4];
+
+            Vector2[] uv = new Vector2[vertices.Length];
+            int[] triangles = new int[((childObjectCount - 1) * 6 * 3) + 2 * 3 + 2 * 3]; // 2 at the start, 2 at the end and 6 for each point except last.
+
+            int currentIndex = 0;
+            Vector3 perpendicular = Vector3.Cross((childObjects[currentIndex + 1].position - childObjects[currentIndex].position).normalized, childObjects[currentIndex].up);
+
+            //Debug.Log($"perpendicular is {perpendicular}");
+
+            Vector3 localPosition = childObjects[currentIndex].localPosition;
+
+            int vertexIndex = 0;
+            int triangleIndex = 0;
+
+            vertices[vertexIndex] = localPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 2] = localPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+
+            triangles[triangleIndex++] = vertexIndex;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 2;
+
+            vertexIndex += 4;
+
+            for (int childObjectIndex = 1; childObjectIndex < childObjects.Length; childObjectIndex++)
+            {
+                Vector3 childObjectLocalPosition = childObjects[childObjectIndex].localPosition;
+                if (childObjectIndex + 1 < childObjects.Length)
+                {
+                    Vector3 prevPerpendicular = Vector3.Cross((childObjects[childObjectIndex - 1].position - childObjects[childObjectIndex].position).normalized, childObjects[childObjectIndex].up);
+                    Vector3 nextPerpendicular = Vector3.Cross((childObjects[childObjectIndex + 1].position - childObjects[childObjectIndex].position).normalized, childObjects[childObjectIndex].up);
+
+                    perpendicular = (nextPerpendicular - prevPerpendicular).normalized;
+                }
+
+                if (childObjectIndex == childObjects.Length - 1)
+                {
+                    perpendicular = Vector3.Cross((childObjects[childObjectIndex - 1].position - childObjects[childObjectIndex].position).normalized, childObjects[childObjectIndex].up);
+                    perpendicular *= -1;
+                    Debug.Log($"perpendicular on last is: {perpendicular}");
+                }
+
+                vertices[vertexIndex] = childObjectLocalPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+                vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+                vertices[vertexIndex + 2] = childObjectLocalPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+                vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+
+                triangles[triangleIndex++] = vertexIndex - 4;
+                triangles[triangleIndex++] = vertexIndex;
+                triangles[triangleIndex++] = vertexIndex + 1;
+                triangles[triangleIndex++] = vertexIndex - 4;
+                triangles[triangleIndex++] = vertexIndex + 1;
+                triangles[triangleIndex++] = vertexIndex - 4 + 1;
+
+                triangles[triangleIndex++] = vertexIndex + 2;
+                triangles[triangleIndex++] = vertexIndex - 4 + 2;
+                triangles[triangleIndex++] = vertexIndex - 4 + 3;
+                triangles[triangleIndex++] = vertexIndex + 2;
+                triangles[triangleIndex++] = vertexIndex - 4 + 3;
+                triangles[triangleIndex++] = vertexIndex + 3;
+
+                triangles[triangleIndex++] = vertexIndex - 4 + 1;
+                triangles[triangleIndex++] = vertexIndex + 1;
+                triangles[triangleIndex++] = vertexIndex + 3;
+                triangles[triangleIndex++] = vertexIndex + 3;
+                triangles[triangleIndex++] = vertexIndex - 4 + 3;
+                triangles[triangleIndex++] = vertexIndex - 4 + 1;
+
+                vertexIndex += 4;
+            }
+
+            vertexIndex -= 4;
+            triangles[triangleIndex++] = vertexIndex;
+            triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 3;
+
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            Unwrapping.GenerateSecondaryUVSet(mesh);
+
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+
+            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
+            {
+                AssetDatabase.CreateFolder("Assets/Scenes", $"{sceneName}");
+            }
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}/Meshes"))
+            {
+                AssetDatabase.CreateFolder($"Assets/Scenes/{sceneName}", "Meshes");
+            }
+            string path = $"Assets/Scenes/{sceneName}/Meshes/{sceneName}_{_targetComponent.name}.asset";
+            AssetDatabase.CreateAsset(mesh, path);
+            AssetDatabase.SaveAssets();
+
+            Mesh loadedMesh = (Mesh)AssetDatabase.LoadAssetAtPath(path, typeof(Mesh));
+            loadedMesh.RecalculateNormals();
+
+            Debug.Log($"loadedMesh.normals = {loadedMesh.normals.Length}");
+            _targetComponent.SetNewMesh(loadedMesh);
+        }
+
+        private void GenerateStandMesh(Transform[] childObjects)
+        {
+            //Debug.Log($"GenerateStandMesh is called with {vertices.Count} vertices");
+            Mesh standMesh = new Mesh();
+
+            Vector3[] vertices = new Vector3[childObjects.Length * 4];
+            Vector2[] uv = new Vector2[vertices.Length];
+            int[] triangles = new int[((childObjects.Length - 1) * 6 * 3) + 2 * 3 + 2 * 3];
+
+            int vertexIndex = 0;
+            int triangleIndex = 0;
+
+            Vector3 perpendicular = Vector3.Cross((childObjects[1].position - childObjects[0].position).normalized, childObjects[0].up);
+            Vector3 localPosition = childObjects[0].localPosition;
+
+            vertices[vertexIndex] = localPosition - (perpendicular * _radius.floatValue) - (perpendicular * _standWidth.floatValue);
+            vertices[vertexIndex + 1] = localPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 2] = localPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 3] = localPosition + (perpendicular * _radius.floatValue) + (perpendicular * _standWidth.floatValue);
+
+            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex;
+            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 1;
+
+            vertexIndex += 4;
+
+            for (int i = 1; i < childObjects.Length; i++)
+            {
+                Vector3 childObjectLocalPosition = childObjects[i].localPosition;
+                if (i + 1 < childObjects.Length)
+                {
+                    Vector3 prevPerpendicular = Vector3.Cross((childObjects[i - 1].position - childObjects[i].position).normalized, childObjects[i].up);
+                    Vector3 nextPerpendicular = Vector3.Cross((childObjects[i + 1].position - childObjects[i].position).normalized, childObjects[i].up);
+
+                    perpendicular = (nextPerpendicular - prevPerpendicular).normalized;
+                }
+
+                if (i == childObjects.Length - 1)
+                {
+                    perpendicular = Vector3.Cross((childObjects[i - 1].position - childObjects[i].position).normalized, childObjects[i].up);
+                    perpendicular *= -1;
+                }
+
+                vertices[vertexIndex] = childObjectLocalPosition - (perpendicular * _radius.floatValue) - (perpendicular * _standWidth.floatValue);
+                vertices[vertexIndex + 1] = childObjectLocalPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+                vertices[vertexIndex + 2] = childObjectLocalPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+                vertices[vertexIndex + 3] = childObjectLocalPosition + (perpendicular * _radius.floatValue) + (perpendicular * _standWidth.floatValue);
+
+                int previousZeroIndex = vertexIndex - 4;
+
+                triangles[triangleIndex++] = vertexIndex + 1;
+                triangles[triangleIndex++] = vertexIndex;
+                triangles[triangleIndex++] = previousZeroIndex;
+                triangles[triangleIndex++] = previousZeroIndex + 1;
+                triangles[triangleIndex++] = vertexIndex + 1;
+                triangles[triangleIndex++] = previousZeroIndex;
+
+                triangles[triangleIndex++] = previousZeroIndex + 2;
+                triangles[triangleIndex++] = vertexIndex + 3;
+                triangles[triangleIndex++] = vertexIndex + 2;
+                triangles[triangleIndex++] = previousZeroIndex + 3;
+                triangles[triangleIndex++] = vertexIndex + 3;
+                triangles[triangleIndex++] = previousZeroIndex + 2;
+
+                triangles[triangleIndex++] = previousZeroIndex + 2;
+                triangles[triangleIndex++] = vertexIndex + 1;
+                triangles[triangleIndex++] = previousZeroIndex + 1;
+                triangles[triangleIndex++] = previousZeroIndex + 2;
+                triangles[triangleIndex++] = vertexIndex + 2;
+                triangles[triangleIndex++] = vertexIndex + 1;
+
+                vertexIndex += 4;
+            }
+
+            vertexIndex -= 4;
+
+            triangles[triangleIndex++] = vertexIndex;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 3;
+
+            standMesh.vertices = vertices;
+            standMesh.triangles = triangles;
+            Unwrapping.GenerateSecondaryUVSet(standMesh);
+
+            standMesh.RecalculateBounds();
+            standMesh.RecalculateNormals();
+            standMesh.RecalculateTangents(); 
+            
+            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
+            {
+                AssetDatabase.CreateFolder("Assets/Scenes", $"{sceneName}");
+            }
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}/Meshes"))
+            {
+                AssetDatabase.CreateFolder($"Assets/Scenes/{sceneName}", "Meshes");
+            }
+            string path = $"Assets/Scenes/{sceneName}/Meshes/{sceneName}_{_targetComponent.name}_stand.asset";
+            AssetDatabase.CreateAsset(standMesh, path);
+            AssetDatabase.SaveAssets();
+
+            Mesh loadedMesh = (Mesh)AssetDatabase.LoadAssetAtPath(path, typeof(Mesh));
+            loadedMesh.RecalculateNormals();
+
+            _targetComponent.SetNewStandMesh(loadedMesh);
         }
     }
 }
