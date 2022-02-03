@@ -12,6 +12,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
     public class PlayerMovement : MonoBehaviour, IFallPreventable
     {
         [SerializeField] private PlayerSettingsSO _settings;
+        [SerializeField] private Transform _model;
         [SerializeField] private AudioClip[] _footstepsSounds;
         [SerializeField] private AudioSource _footstepsSource;
         [SerializeField] private float _timeBetweenFootsteps = 0.3f;
@@ -58,7 +59,12 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
                 _timeFromPreviousFootstepPlayed += Time.deltaTime;
             }
 
-            Vector3 movement = new Vector3(movementDirection.x, 0f, movementDirection.y) * _settings.Speed * Time.deltaTime;
+            Vector3 direction = new Vector3(movementDirection.x, 0f, movementDirection.y);
+
+            Vector3 newRotation = Vector3.RotateTowards(_model.forward, direction, _settings.RotationSpeed * Time.deltaTime, 0.0f);
+            _model.rotation = Quaternion.LookRotation(newRotation);
+
+            Vector3 movement = direction * _settings.Speed * Time.deltaTime;
             Vector3 movementWithGravity = movement + Physics.gravity;
             _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * movementWithGravity);
             if (movementDirection.normalized.x != 0f)

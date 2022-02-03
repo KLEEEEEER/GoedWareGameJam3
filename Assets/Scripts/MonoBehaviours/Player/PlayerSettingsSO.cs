@@ -7,5 +7,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
     {
         [SerializeField] private float _speed = 1f;
         public float Speed => _speed;
+        [SerializeField] private float _rotationSpeed = 10f;
+        public float RotationSpeed => _rotationSpeed;
     }
 }
