@@ -13,6 +13,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         public Action OnJumpPressed;
         public Action OnRestartPressed;
 
+        public bool IsJumpPressed => _keyInputActions.Player.Jump.triggered;
+
         private KeyInputActions _keyInputActions;
 
         private void Awake()

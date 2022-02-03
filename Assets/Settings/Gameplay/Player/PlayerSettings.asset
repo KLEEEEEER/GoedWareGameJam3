@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: PlayerSettings
   m_EditorClassIdentifier: 
   _speed: 10
+  _rotationSpeed: 10
+  _jumpHeight: 1

@@ -233,13 +233,13 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 2
-  m_Radius: 0.77
+  m_Height: 2.67
+  m_Radius: 0.32
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.32, z: 0}
 --- !u!114 &8855168642817416788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,6 +270,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 885d4c9425283774b806c6c7354d90e6, type: 3}
   _footstepsSource: {fileID: 1024376665540737086}
   _timeBetweenFootsteps: 0.3
+  _groundCheckLength: 1.76
+  _groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &8855168642817416785
 MonoBehaviour:
   m_ObjectHideFlags: 0
