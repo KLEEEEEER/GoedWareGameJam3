@@ -194,6 +194,7 @@ GameObject:
   - component: {fileID: 8855168642817416789}
   - component: {fileID: 8855168642817416791}
   - component: {fileID: 8855168642817416788}
+  - component: {fileID: 3364727148227018608}
   - component: {fileID: 8855168642817416790}
   - component: {fileID: 8855168642817416785}
   - component: {fileID: 8855168642817416784}
@@ -252,6 +253,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad63a3f7ea3bea4ab6fadbe708a94d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3364727148227018608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8855168642817416794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9473721ea3597624f9e1b579c0df685e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _footstepsSounds:
+  - {fileID: 8300000, guid: 885d4c9425283774b806c6c7354d90e6, type: 3}
+  _footstepsSource: {fileID: 1024376665540737086}
+  _timeBetweenFootsteps: 0.3
 --- !u!114 &8855168642817416790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267,10 +284,6 @@ MonoBehaviour:
   _settings: {fileID: 11400000, guid: 94fc11e767a803a479c48faa90c69e88, type: 2}
   _gravityMultiplier: 2
   _model: {fileID: 5390725570382630441}
-  _footstepsSounds:
-  - {fileID: 8300000, guid: 885d4c9425283774b806c6c7354d90e6, type: 3}
-  _footstepsSource: {fileID: 1024376665540737086}
-  _timeBetweenFootsteps: 0.3
   _groundCheckLength: 1.76
   _groundLayerMask:
     serializedVersion: 2

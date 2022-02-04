@@ -14,9 +14,6 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         [SerializeField] private PlayerSettingsSO _settings;
         [SerializeField] private float _gravityMultiplier = 2f;
         [SerializeField] private Transform _model;
-        [SerializeField] private AudioClip[] _footstepsSounds;
-        [SerializeField] private AudioSource _footstepsSource;
-        [SerializeField] private float _timeBetweenFootsteps = 0.3f;
 
         [SerializeField] private float _groundCheckLength = 1f;
         [SerializeField] private LayerMask _groundLayerMask;
@@ -25,13 +22,13 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private PlayerAnimation _playerAnimation;
         private PlayerInteraction _playerInteraction;
         private CharacterController _characterController;
+        private PlayerAudio _playerAudio;
 
         private Vector3 _startPosition;
         private Vector3 _velocity = Vector3.zero;
         private bool _isGrounded = false;
         private bool _isJumping = false;
 
-        private float _timeFromPreviousFootstepPlayed = 0f;
 
         private void Awake()
         {
@@ -39,6 +36,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerAnimation = GetComponent<PlayerAnimation>();
             _characterController = GetComponent<CharacterController>();
             _playerInteraction = GetComponent<PlayerInteraction>();
+            _playerAudio = GetComponent<PlayerAudio>();
         }
 
         private void Start()
@@ -59,8 +57,6 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void Move(Vector2 movementDirection)
         {
-            PlayFootstepSounds(movementDirection);
-
             Vector3 direction = new Vector3(movementDirection.x, 0f, movementDirection.y);
 
             RotateModel(direction);
@@ -79,18 +75,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
                 _playerInteraction.CurrentDraggable.Move(_velocity * Time.deltaTime);
             }
 
-            /*if (_characterController.isGrounded)
-            {
-                _velocity.y = 0f;
-            }
-            else
-            {
-                _velocity += Physics.gravity;
-            }*/
-
             if (_isGrounded)
             {
-                //_velocity.y = 0f;
                 _isJumping = false;
             }
             else
@@ -100,10 +86,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
             if (_playerInputs.IsJumpPressed && _isGrounded && !_isJumping)
             {
-                Debug.Log("Jumping!");
-                //_velocity.y += Mathf.Sqrt(_settings.JumpHeight * -3.0f * Physics.gravity.y);
                 _velocity.y = _settings.JumpHeight * _settings.Speed;
-                //_velocity.y = Mathf.Sqrt(2f * _settings.JumpHeight * -Physics.gravity.y); ;
                 _isJumping = true;
                 _playerAnimation.Jump();
             }
@@ -117,28 +100,14 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
                 _playerAnimation.SetHorizontalDirection(movementDirection.normalized.x);
             }
             _playerAnimation.SetVerticalDirection(movementDirection.normalized.y);
+
+            _playerAudio.PlayFootstepSounds(movementDirection);
         }
 
         private void RotateModel(Vector3 direction)
         {
             Vector3 newRotation = Vector3.RotateTowards(_model.forward, direction, _settings.RotationSpeed * Time.deltaTime, 0.0f);
             _model.rotation = Quaternion.LookRotation(newRotation);
-        }
-
-        private void PlayFootstepSounds(Vector2 movementDirection)
-        {
-            if (movementDirection.normalized.sqrMagnitude > 0f && _timeFromPreviousFootstepPlayed >= _timeBetweenFootsteps)
-            {
-                AudioClip randomFootstep = _footstepsSounds[Random.Range(0, _footstepsSounds.Length)];
-                _footstepsSource.clip = randomFootstep;
-                _footstepsSource.pitch = Random.Range(0.8f, 1.2f);
-                _footstepsSource.Play();
-                _timeFromPreviousFootstepPlayed = 0f;
-            }
-            else
-            {
-                _timeFromPreviousFootstepPlayed += Time.deltaTime;
-            }
         }
 
         public void PreventFalling()
