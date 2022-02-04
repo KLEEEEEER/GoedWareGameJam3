@@ -12,6 +12,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
     public class PlayerMovement : MonoBehaviour, IFallPreventable
     {
         [SerializeField] private PlayerSettingsSO _settings;
+        [SerializeField] private float _gravityMultiplier = 2f;
         [SerializeField] private Transform _model;
         [SerializeField] private AudioClip[] _footstepsSounds;
         [SerializeField] private AudioSource _footstepsSource;
@@ -63,10 +64,14 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
             RotateModel(direction);
 
-            _velocity.x = direction.x * _settings.Speed;
-            _velocity.z = direction.z * _settings.Speed;
+            direction.Normalize();
+            _playerAnimation.SetSpeed(direction.sqrMagnitude);
 
-            _playerAnimation.SetSpeed(_velocity.normalized.sqrMagnitude);
+            direction *= _settings.Speed;
+
+            _velocity.x = direction.x;
+            _velocity.z = direction.z;
+
 
             if (_playerInteraction.CurrentDraggable != null)
             {
@@ -81,14 +86,15 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             {
                 _velocity += Physics.gravity;
             }*/
+
             if (_isGrounded)
             {
-                _velocity.y = 0f;
+                //_velocity.y = 0f;
                 _isJumping = false;
             }
             else
             {
-                _velocity.y += Physics.gravity.y * Time.deltaTime;
+                _velocity.y += Physics.gravity.y * _gravityMultiplier * Time.deltaTime;
             }
 
             if (_playerInputs.IsJumpPressed && _isGrounded && !_isJumping)
