@@ -34,5 +34,16 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
             _animator.SetFloat("VerticalDirection", Mathf.Round(direction));
         }
+
+        public void Jump()
+        {
+            _animator.ResetTrigger("Jump");
+            _animator.SetTrigger("Jump");
+        }
+
+        public void SetGrounded(bool isGrounded)
+        {
+            _animator.SetBool("IsGrounded", isGrounded);
+        }
     }
 }

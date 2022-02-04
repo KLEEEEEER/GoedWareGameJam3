@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speed: 10
   _rotationSpeed: 10
-  _jumpHeight: 1
+  _jumpHeight: 1.3

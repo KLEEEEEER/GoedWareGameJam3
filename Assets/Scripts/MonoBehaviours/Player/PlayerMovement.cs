@@ -54,6 +54,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private void FixedUpdate()
         {
             _isGrounded = Physics.Raycast(transform.position, -transform.up, _groundCheckLength, _groundLayerMask);
+            _playerAnimation.SetGrounded(_isGrounded);
         }
 
         private void Move(Vector2 movementDirection)
@@ -104,6 +105,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
                 _velocity.y = _settings.JumpHeight * _settings.Speed;
                 //_velocity.y = Mathf.Sqrt(2f * _settings.JumpHeight * -Physics.gravity.y); ;
                 _isJumping = true;
+                _playerAnimation.Jump();
             }
 
             Debug.Log($"_velocity = {_velocity}");

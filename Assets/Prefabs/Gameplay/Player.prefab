@@ -265,6 +265,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _settings: {fileID: 11400000, guid: 94fc11e767a803a479c48faa90c69e88, type: 2}
+  _gravityMultiplier: 2
   _model: {fileID: 5390725570382630441}
   _footstepsSounds:
   - {fileID: 8300000, guid: 885d4c9425283774b806c6c7354d90e6, type: 3}
@@ -273,7 +274,7 @@ MonoBehaviour:
   _groundCheckLength: 1.76
   _groundLayerMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 448
 --- !u!114 &8855168642817416785
 MonoBehaviour:
   m_ObjectHideFlags: 0
