@@ -91,8 +91,6 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
                 _playerAnimation.Jump();
             }
 
-            Debug.Log($"_velocity = {_velocity}");
-
             _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * _velocity * Time.deltaTime);
 
             if (movementDirection.normalized.x != 0f)
