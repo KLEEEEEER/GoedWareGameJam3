@@ -2,6 +2,7 @@ using GoedWareGameJam3.Core.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 namespace GoedWareGameJam3.MonoBehaviours.Player
 {
@@ -18,6 +19,9 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         [SerializeField] private float _groundCheckLength = 1f;
         [SerializeField] private LayerMask _groundLayerMask;
 
+        [SerializeField] private Vector2 _climbEndPointOffset = new Vector2(1.5f, 2f);
+
+        private PlayerFSM _playerFSM;
         private PlayerInputs _playerInputs;
         private PlayerAnimation _playerAnimation;
         private PlayerInteraction _playerInteraction;
@@ -32,6 +36,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void Awake()
         {
+            _playerFSM = GetComponent<PlayerFSM>();
             _playerInputs = GetComponent<PlayerInputs>();
             _playerAnimation = GetComponent<PlayerAnimation>();
             _characterController = GetComponent<CharacterController>();
@@ -44,18 +49,13 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _startPosition = transform.position;
         }
 
-        private void Update()
-        {
-            Move(_playerInputs.GetInput());
-        }
-
         private void FixedUpdate()
         {
             _isGrounded = Physics.Raycast(transform.position, -transform.up, _groundCheckLength, _groundLayerMask);
             _playerAnimation.SetGrounded(_isGrounded);
         }
 
-        private void Move(Vector2 movementDirection)
+        public void Move(Vector2 movementDirection)
         {
             Vector3 direction = new Vector3(movementDirection.x, 0f, movementDirection.y);
 
@@ -102,6 +102,17 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerAudio.PlayFootstepSounds(movementDirection);
         }
 
+        public void Climb(RaycastHit hit)
+        {
+            _playerAnimation.Climb();
+            Vector3 upPoint = transform.position + Vector3.up * _climbEndPointOffset.y;
+            Vector3 endPoint = hit.point - hit.normal * _climbEndPointOffset.x + Vector3.up * _climbEndPointOffset.y;
+            transform.DOMove(upPoint, 0.5f).OnComplete(() =>
+            {
+                transform.DOMove(endPoint, 0.5f).OnComplete(() => { _playerFSM.TransitionToState(PlayerFSM.States.Running); ResetVelocity(); }).SetEase(Ease.Linear);
+            }).SetEase(Ease.Linear);
+        }
+
         private void RotateModel(Vector3 direction)
         {
             Vector3 newRotation = Vector3.RotateTowards(_model.forward, direction, _settings.RotationSpeed * Time.deltaTime, 0.0f);
@@ -122,6 +133,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         public void Deactivate()
         {
             _characterController.enabled = false;
+        }
+
+        public void ResetVelocity()
+        {
+            _characterController.SimpleMove(Vector3.zero);
         }
 
         private void OnDrawGizmos()

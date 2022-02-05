@@ -4,12 +4,23 @@ using UnityEngine;
 
 namespace GoedWareGameJam3.MonoBehaviours.Player
 {
+    [RequireComponent(typeof(PlayerFSM))]
+    [RequireComponent(typeof(PlayerMovement))]
     public class PlayerLedgeChecker : MonoBehaviour
     {
         [SerializeField] private Transform _ledgeChecker;
         [SerializeField] private Transform _ledgeCheckerHead;
         [SerializeField] private float _ledgeCheckerDistance = 2f;
         [SerializeField] private LayerMask _groundLayerMask;
+        
+        private PlayerFSM _playerFSM;
+        private PlayerMovement _playerMovement;
+
+        private void Awake()
+        {
+            _playerFSM = GetComponent<PlayerFSM>();
+            _playerMovement = GetComponent<PlayerMovement>();
+        }
 
         private void FixedUpdate()
         {
@@ -28,6 +39,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private void PerformClimb(RaycastHit hit)
         {
             Debug.Log($"Climbing right now! Hit with {hit.collider.gameObject.name}");
+            _playerFSM.TransitionToState(PlayerFSM.States.Climbing);
+            _playerMovement.Climb(hit);
         }
 
         private void OnDrawGizmos()

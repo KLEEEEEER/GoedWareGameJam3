@@ -2173,7 +2173,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1188128191}
-  m_LocalRotation: {x: 0.37782857, y: 0.0017805019, z: -0.00072658353, w: 0.9258736}
+  m_LocalRotation: {x: 0.37782857, y: 0.0017805338, z: -0.0007265965, w: 0.9258736}
   m_LocalPosition: {x: -10.04, y: 59.5, z: -60.760002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -3717,11 +3717,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6299296584822330309, guid: 0b35c7cbf8600c04fb5998562353b14f, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.0017805019
+      value: 0.0017805338
       objectReference: {fileID: 0}
     - target: {fileID: 6299296584822330309, guid: 0b35c7cbf8600c04fb5998562353b14f, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.00072658353
+      value: -0.0007265965
       objectReference: {fileID: 0}
     - target: {fileID: 6299296584822330309, guid: 0b35c7cbf8600c04fb5998562353b14f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4321,6 +4321,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4236359727303938088, guid: b0953f9e953d63d40aee811718542902, type: 3}
+      propertyPath: _ledgeCheckerDistance
+      value: 0.9
+      objectReference: {fileID: 0}
     - target: {fileID: 8855168642817416789, guid: b0953f9e953d63d40aee811718542902, type: 3}
       propertyPath: m_RootOrder
       value: 10

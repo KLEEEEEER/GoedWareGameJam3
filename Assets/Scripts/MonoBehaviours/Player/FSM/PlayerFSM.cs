@@ -25,7 +25,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void Start()
         {
-            TransitionToState(States.Disabled);
+            TransitionToState(States.Running);
         }
     }
 }
