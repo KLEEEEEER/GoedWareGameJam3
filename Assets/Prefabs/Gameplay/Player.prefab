@@ -412,7 +412,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ledgeChecker: {fileID: 5983168355474521913}
   _ledgeCheckerHead: {fileID: 5353597019145777432}
-  _ledgeCheckerDistance: 2
+  _ledgeCheckerDistance: 0.9
   _groundLayerMask:
     serializedVersion: 2
     m_Bits: 256

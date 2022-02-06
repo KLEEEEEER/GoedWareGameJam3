@@ -115,7 +115,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         private void RotateModel(Vector3 direction)
         {
-            Vector3 newRotation = Vector3.RotateTowards(_model.forward, direction, _settings.RotationSpeed * Time.deltaTime, 0.0f);
+            Vector3 newRotation = Vector3.RotateTowards(_model.forward, Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * direction, _settings.RotationSpeed * Time.deltaTime, 0.0f);
             _model.rotation = Quaternion.LookRotation(newRotation);
         }
 
