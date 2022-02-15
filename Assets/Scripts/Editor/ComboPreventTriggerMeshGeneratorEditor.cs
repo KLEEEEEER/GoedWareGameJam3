@@ -14,6 +14,8 @@ namespace GoedWareGameJam3.EditorBehaviour
         private SerializedProperty _standHeight;
         private SerializedProperty _standWidth;
 
+        private float _materialSize = 1f;
+
         private int _childsCount = 0;
         private Transform[] _childObjects;
 
@@ -127,7 +129,9 @@ namespace GoedWareGameJam3.EditorBehaviour
 
             Debug.Log($"Generating mesh for {childObjects.Length - 1} objects");
 
-            Vector3[] vertices = new Vector3[childObjectCount * 4];
+            Vector3[] vertices = new Vector3[2 * 4 + (childObjectCount - 1) * 12]; // One vertex for each face of a mesh except bottom, we don't need bottom face
+            Vector2[] uvs = new Vector2[vertices.Length];
+            Vector3[] normals = new Vector3[vertices.Length];
 
             Vector2[] uv = new Vector2[vertices.Length];
             int[] triangles = new int[((childObjectCount - 1) * 6 * 3) + 2 * 3 + 2 * 3]; // 2 at the start, 2 at the end and 6 for each point except last.
@@ -135,21 +139,46 @@ namespace GoedWareGameJam3.EditorBehaviour
             int currentIndex = 0;
             Vector3 perpendicular = Vector3.Cross((childObjects[currentIndex + 1].position - childObjects[currentIndex].position).normalized, childObjects[currentIndex].up);
 
-            //Debug.Log($"perpendicular is {perpendicular}");
+            //Debug.Log($"{vertices.Length} vertices, {triangles.Length} triangles");
+            //Debug.Log($"perpendicular = {perpendicular}");
 
             Vector3 localPosition = childObjects[currentIndex].localPosition;
+            Vector3[] previousMainPoints = new Vector3[4];
+            Vector3[] currentMainPoints = new Vector3[4];
+            Vector3 normalDirection;
+
+            float height = 0f;
+            float length = 0f;
+            float uvScale = 0f;
 
             int vertexIndex = 0;
             int triangleIndex = 0;
+
+
 
             vertices[vertexIndex] = localPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
             vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
             vertices[vertexIndex + 2] = localPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
             vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
 
+            height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
+            length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
+            uvScale = length / height;
+
+            uvs[vertexIndex]     = new Vector2(uvScale, 0);
+            uvs[vertexIndex + 1] = new Vector2(uvScale, 1);
+            uvs[vertexIndex + 3] = new Vector2(0, 1);
+            uvs[vertexIndex + 2] = new Vector2(0, 0);
+
+            previousMainPoints[0] = vertices[vertexIndex];
+            previousMainPoints[1] = vertices[vertexIndex + 1];
+            previousMainPoints[2] = vertices[vertexIndex + 2];
+            previousMainPoints[3] = vertices[vertexIndex + 3];
+
             triangles[triangleIndex++] = vertexIndex;
             triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex + 2;
+
             triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex + 3;
             triangles[triangleIndex++] = vertexIndex + 2;
@@ -174,50 +203,128 @@ namespace GoedWareGameJam3.EditorBehaviour
                     Debug.Log($"perpendicular on last is: {perpendicular}");
                 }
 
-                vertices[vertexIndex] = childObjectLocalPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-                vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
-                vertices[vertexIndex + 2] = childObjectLocalPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-                vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+                currentMainPoints[0] = childObjectLocalPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+                currentMainPoints[1] = currentMainPoints[0] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+                currentMainPoints[2] = childObjectLocalPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+                currentMainPoints[3] = currentMainPoints[2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
 
-                triangles[triangleIndex++] = vertexIndex - 4;
+                // Left
+                vertices[vertexIndex] = currentMainPoints[2];
+                vertices[vertexIndex + 1] = currentMainPoints[3];
+                vertices[vertexIndex + 2] = previousMainPoints[3];
+                vertices[vertexIndex + 3] = previousMainPoints[2];
+
+                height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
+                length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
+                uvScale = length / height;
+
+                uvs[vertexIndex]     = new Vector2(uvScale, 0);
+                uvs[vertexIndex + 1] = new Vector2(uvScale, 1);
+                uvs[vertexIndex + 2] = new Vector2(0, 1);
+                uvs[vertexIndex + 3] = new Vector2(0, 0);
+
+                triangles[triangleIndex++] = vertexIndex + 2;
+                triangles[triangleIndex++] = vertexIndex + 1;
                 triangles[triangleIndex++] = vertexIndex;
-                triangles[triangleIndex++] = vertexIndex + 1;
-                triangles[triangleIndex++] = vertexIndex - 4;
-                triangles[triangleIndex++] = vertexIndex + 1;
-                triangles[triangleIndex++] = vertexIndex - 4 + 1;
-
                 triangles[triangleIndex++] = vertexIndex + 2;
-                triangles[triangleIndex++] = vertexIndex - 4 + 2;
-                triangles[triangleIndex++] = vertexIndex - 4 + 3;
-                triangles[triangleIndex++] = vertexIndex + 2;
-                triangles[triangleIndex++] = vertexIndex - 4 + 3;
+                triangles[triangleIndex++] = vertexIndex;
                 triangles[triangleIndex++] = vertexIndex + 3;
 
-                triangles[triangleIndex++] = vertexIndex - 4 + 1;
-                triangles[triangleIndex++] = vertexIndex + 1;
-                triangles[triangleIndex++] = vertexIndex + 3;
-                triangles[triangleIndex++] = vertexIndex + 3;
-                triangles[triangleIndex++] = vertexIndex - 4 + 3;
-                triangles[triangleIndex++] = vertexIndex - 4 + 1;
+                // Top
+                vertices[vertexIndex + 4] = currentMainPoints[3];
+                vertices[vertexIndex + 5] = currentMainPoints[1];
+                vertices[vertexIndex + 6] = previousMainPoints[1];
+                vertices[vertexIndex + 7] = previousMainPoints[3];
 
-                vertexIndex += 4;
+                height = (vertices[vertexIndex + 4] - vertices[vertexIndex + 5]).magnitude;
+                length = (vertices[vertexIndex + 5] - vertices[vertexIndex + 7]).magnitude;
+                uvScale = length / height;
+
+                uvs[vertexIndex + 4] = new Vector2(uvScale, 0);
+                uvs[vertexIndex + 5] = new Vector2(uvScale, 1);
+                uvs[vertexIndex + 6] = new Vector2(0, 1);
+                uvs[vertexIndex + 7] = new Vector2(0, 0);
+
+                triangles[triangleIndex++] = vertexIndex + 5;
+                triangles[triangleIndex++] = vertexIndex + 4;
+                triangles[triangleIndex++] = vertexIndex + 7;
+                triangles[triangleIndex++] = vertexIndex + 7;
+                triangles[triangleIndex++] = vertexIndex + 6;
+                triangles[triangleIndex++] = vertexIndex + 5;
+
+                // Right
+                vertices[vertexIndex + 8] = previousMainPoints[0];
+                vertices[vertexIndex + 9] = previousMainPoints[1];
+                vertices[vertexIndex + 10] = currentMainPoints[1];
+                vertices[vertexIndex + 11] = currentMainPoints[0];
+
+                height = (vertices[vertexIndex + 8] - vertices[vertexIndex + 9]).magnitude;
+                length = (vertices[vertexIndex + 9] - vertices[vertexIndex + 11]).magnitude;
+                uvScale = length / height;
+
+                uvs[vertexIndex + 8]  = new Vector2(uvScale, 0);
+                uvs[vertexIndex + 9]  = new Vector2(uvScale, 1);
+                uvs[vertexIndex + 10] = new Vector2(0, 1);
+                uvs[vertexIndex + 11] = new Vector2(0, 0);
+
+                triangles[triangleIndex++] = vertexIndex + 10;
+                triangles[triangleIndex++] = vertexIndex + 9;
+                triangles[triangleIndex++] = vertexIndex + 8;
+                triangles[triangleIndex++] = vertexIndex + 8;
+                triangles[triangleIndex++] = vertexIndex + 11;
+                triangles[triangleIndex++] = vertexIndex + 10;
+
+                vertexIndex += 12;
+
+                previousMainPoints[0] = currentMainPoints[0];
+                previousMainPoints[1] = currentMainPoints[1];
+                previousMainPoints[2] = currentMainPoints[2];
+                previousMainPoints[3] = currentMainPoints[3];
             }
 
-            vertexIndex -= 4;
-            triangles[triangleIndex++] = vertexIndex;
-            triangles[triangleIndex++] = vertexIndex + 2;
-            triangles[triangleIndex++] = vertexIndex + 1;
-            triangles[triangleIndex++] = vertexIndex + 1;
+            Vector3 lastChildObjectLocalPosition = childObjects[childObjects.Length - 1].localPosition;
+
+            currentMainPoints[0] = lastChildObjectLocalPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            currentMainPoints[1] = currentMainPoints[0] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+            currentMainPoints[2] = lastChildObjectLocalPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            currentMainPoints[3] = currentMainPoints[2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+
+            vertices[vertexIndex] = currentMainPoints[0];
+            vertices[vertexIndex + 1] = currentMainPoints[1];
+            vertices[vertexIndex + 2] = currentMainPoints[2];
+            vertices[vertexIndex + 3] = currentMainPoints[3];
+
+            height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
+            length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
+            uvScale = length / height;
+
+            uvs[vertexIndex]     = new Vector2(uvScale, 0);
+            uvs[vertexIndex + 1] = new Vector2(uvScale, 1);
+            uvs[vertexIndex + 3] = new Vector2(0, 1);
+            uvs[vertexIndex + 2] = new Vector2(0, 0);
+
             triangles[triangleIndex++] = vertexIndex + 2;
             triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex;
 
             mesh.vertices = vertices;
             mesh.triangles = triangles;
-            Unwrapping.GenerateSecondaryUVSet(mesh);
+            foreach(Vector2 uvElement in uvs)
+            {
+                Debug.Log($"{uvElement}");
+            }
+            //Unwrapping.GenerateSecondaryUVSet(mesh);
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
+
+            Debug.Log($"{mesh.normals.Length} normals..");
+
+            mesh.uv = uvs;
 
             string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
             if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
@@ -350,6 +457,18 @@ namespace GoedWareGameJam3.EditorBehaviour
             loadedMesh.RecalculateNormals();
 
             _targetComponent.SetNewStandMesh(loadedMesh);
+        }
+
+        private float GetUvScale(float length)
+        {
+            return 0.3f;
+
+            Debug.Log($"GetUvScale {length} / {_materialSize}");
+
+            float scale = length / _materialSize;
+            //scale = Mathf.Clamp01(scale);
+
+            return scale;
         }
     }
 }

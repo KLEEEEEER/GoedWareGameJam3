@@ -364,7 +364,7 @@ MonoBehaviour:
   _groundLayerMask:
     serializedVersion: 2
     m_Bits: 448
-  _climbEndPointOffset: {x: 0.39, y: 2.26}
+  _climbEndPointOffset: {x: 0.39, y: 1.8}
 --- !u!114 &8855168642817416785
 MonoBehaviour:
   m_ObjectHideFlags: 0

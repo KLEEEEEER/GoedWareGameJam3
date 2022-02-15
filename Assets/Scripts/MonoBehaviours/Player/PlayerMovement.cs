@@ -20,6 +20,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         [SerializeField] private LayerMask _groundLayerMask;
 
         [SerializeField] private Vector2 _climbEndPointOffset = new Vector2(1.5f, 2f);
+        [SerializeField] private float _climbTime = 1f;
 
         private PlayerFSM _playerFSM;
         private PlayerInputs _playerInputs;
@@ -69,12 +70,6 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _velocity.x = direction.x;
             _velocity.z = direction.z;
 
-
-            if (_playerInteraction.CurrentDraggable != null)
-            {
-                _playerInteraction.CurrentDraggable.Move(_velocity * Time.deltaTime);
-            }
-
             if (_isGrounded)
             {
                 _isJumping = false;
@@ -91,7 +86,14 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
                 _playerAnimation.Jump();
             }
 
-            _characterController.Move(Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * _velocity * Time.deltaTime);
+            Vector3 newDirection = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * _velocity * Time.deltaTime;
+            _characterController.Move(newDirection);
+
+            if (_playerInteraction.CurrentDraggable != null)
+            {
+                _playerInteraction.CurrentDraggable.Move(newDirection);
+            }
+
 
             if (movementDirection.normalized.x != 0f)
             {
@@ -107,9 +109,9 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerAnimation.Climb();
             Vector3 upPoint = transform.position + Vector3.up * _climbEndPointOffset.y;
             Vector3 endPoint = hit.point - hit.normal * _climbEndPointOffset.x + Vector3.up * _climbEndPointOffset.y;
-            transform.DOMove(upPoint, 0.5f).OnComplete(() =>
+            transform.DOMove(upPoint, _climbTime * 0.5f).OnComplete(() =>
             {
-                transform.DOMove(endPoint, 0.5f).OnComplete(() => { _playerFSM.TransitionToState(PlayerFSM.States.Running); ResetVelocity(); }).SetEase(Ease.Linear);
+                transform.DOMove(endPoint, _climbTime * 0.5f).OnComplete(() => { ResetVelocity(); _playerFSM.TransitionToState(PlayerFSM.States.Running); }).SetEase(Ease.Linear);
             }).SetEase(Ease.Linear);
         }
 

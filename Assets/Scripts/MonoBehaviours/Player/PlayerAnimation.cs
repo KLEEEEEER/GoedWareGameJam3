@@ -37,14 +37,20 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         public void Jump()
         {
-            _animator.ResetTrigger("Jump");
+            ResetTriggers();
             _animator.SetTrigger("Jump");
         }
 
         public void Climb()
         {
-            _animator.ResetTrigger("ClimbTallObstacle");
+            ResetTriggers();
             _animator.SetTrigger("ClimbTallObstacle");
+        }
+
+        private void ResetTriggers()
+        {
+            _animator.ResetTrigger("Jump");
+            _animator.ResetTrigger("ClimbTallObstacle");
         }
 
         public void SetGrounded(bool isGrounded)

@@ -45,11 +45,12 @@ namespace GoedWareGameJam3.MonoBehaviours
             _canBeDragged = false;
         }
 
-        public void Move(Vector3 movement)
+        public void Move(Vector3 velocity)
         {
-            Debug.Log($"Move on {gameObject.name}");
-            _rigidbody.AddForce(movement * 11f, ForceMode.VelocityChange);
-            _rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, 8f);
+            //_rigidbody.AddForce(movement * 11f, ForceMode.VelocityChange);
+            //_rigidbody.velocity = Vector3.ClampMagnitude(_rigidbody.velocity, 8f);
+            _rigidbody.velocity = new Vector3(velocity.x, 0f, velocity.z) * 10f;
+            Debug.Log($"Move on {gameObject.name}. velocity = {velocity}, _rigidbody.velocity = {_rigidbody.velocity}");
         }
 
         public void SetVelocity(Vector3 velocity)
