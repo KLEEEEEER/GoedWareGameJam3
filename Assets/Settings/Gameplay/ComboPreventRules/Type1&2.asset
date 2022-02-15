@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rules:
   - _type: 0
-    _material: {fileID: 2100000, guid: fe0d6c6dd0e514d4f88f63417dd35d04, type: 2}
+    _material: {fileID: 2100000, guid: 40ce3d0f6a4c45e468ecf65eb76f55f2, type: 2}
   - _type: 1
-    _material: {fileID: 2100000, guid: 1cdfdc6999875a84293372c58b62069e, type: 2}
+    _material: {fileID: 2100000, guid: 24acb6ccf2f3c3d4cbdb35aab8be0711, type: 2}

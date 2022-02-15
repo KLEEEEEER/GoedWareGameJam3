@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ForceField
+  m_Name: ForceFieldType1
   m_Shader: {fileID: -6465566751694194690, guid: a1e5e7f61db760b4b846173b828c0aba, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -127,6 +127,6 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MainColor: {r: 0.5353717, g: 0.8301887, b: 0, a: 1}
+    - _MainColor: {r: 0.5045264, g: 0.7387708, b: 2.0181055, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

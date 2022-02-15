@@ -149,6 +149,7 @@ namespace GoedWareGameJam3.EditorBehaviour
 
             float height = 0f;
             float length = 0f;
+            float heightScale = 0f;
             float uvScale = 0f;
 
             int vertexIndex = 0;
@@ -164,10 +165,11 @@ namespace GoedWareGameJam3.EditorBehaviour
             height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
             length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
             uvScale = length / height;
+            heightScale = height / _height.floatValue;
 
             uvs[vertexIndex]     = new Vector2(uvScale, 0);
-            uvs[vertexIndex + 1] = new Vector2(uvScale, 1);
-            uvs[vertexIndex + 3] = new Vector2(0, 1);
+            uvs[vertexIndex + 1] = new Vector2(uvScale, heightScale);
+            uvs[vertexIndex + 3] = new Vector2(0, heightScale);
             uvs[vertexIndex + 2] = new Vector2(0, 0);
 
             previousMainPoints[0] = vertices[vertexIndex];
@@ -217,10 +219,11 @@ namespace GoedWareGameJam3.EditorBehaviour
                 height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
                 length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
                 uvScale = length / height;
+                heightScale = height / _height.floatValue;
 
                 uvs[vertexIndex]     = new Vector2(uvScale, 0);
-                uvs[vertexIndex + 1] = new Vector2(uvScale, 1);
-                uvs[vertexIndex + 2] = new Vector2(0, 1);
+                uvs[vertexIndex + 1] = new Vector2(uvScale, heightScale);
+                uvs[vertexIndex + 2] = new Vector2(0, heightScale);
                 uvs[vertexIndex + 3] = new Vector2(0, 0);
 
                 triangles[triangleIndex++] = vertexIndex + 2;
@@ -239,10 +242,11 @@ namespace GoedWareGameJam3.EditorBehaviour
                 height = (vertices[vertexIndex + 4] - vertices[vertexIndex + 5]).magnitude;
                 length = (vertices[vertexIndex + 5] - vertices[vertexIndex + 7]).magnitude;
                 uvScale = length / height;
+                heightScale = height / _height.floatValue;
 
                 uvs[vertexIndex + 4] = new Vector2(uvScale, 0);
-                uvs[vertexIndex + 5] = new Vector2(uvScale, 1);
-                uvs[vertexIndex + 6] = new Vector2(0, 1);
+                uvs[vertexIndex + 5] = new Vector2(uvScale, heightScale);
+                uvs[vertexIndex + 6] = new Vector2(0, heightScale);
                 uvs[vertexIndex + 7] = new Vector2(0, 0);
 
                 triangles[triangleIndex++] = vertexIndex + 5;
@@ -261,10 +265,11 @@ namespace GoedWareGameJam3.EditorBehaviour
                 height = (vertices[vertexIndex + 8] - vertices[vertexIndex + 9]).magnitude;
                 length = (vertices[vertexIndex + 9] - vertices[vertexIndex + 11]).magnitude;
                 uvScale = length / height;
+                heightScale = height / _height.floatValue;
 
                 uvs[vertexIndex + 8]  = new Vector2(uvScale, 0);
-                uvs[vertexIndex + 9]  = new Vector2(uvScale, 1);
-                uvs[vertexIndex + 10] = new Vector2(0, 1);
+                uvs[vertexIndex + 9]  = new Vector2(uvScale, heightScale);
+                uvs[vertexIndex + 10] = new Vector2(0, heightScale);
                 uvs[vertexIndex + 11] = new Vector2(0, 0);
 
                 triangles[triangleIndex++] = vertexIndex + 10;
@@ -297,10 +302,11 @@ namespace GoedWareGameJam3.EditorBehaviour
             height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
             length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
             uvScale = length / height;
+            heightScale = height / _height.floatValue;
 
             uvs[vertexIndex]     = new Vector2(uvScale, 0);
-            uvs[vertexIndex + 1] = new Vector2(uvScale, 1);
-            uvs[vertexIndex + 3] = new Vector2(0, 1);
+            uvs[vertexIndex + 1] = new Vector2(uvScale, heightScale);
+            uvs[vertexIndex + 3] = new Vector2(0, heightScale);
             uvs[vertexIndex + 2] = new Vector2(0, 0);
 
             triangles[triangleIndex++] = vertexIndex + 2;
