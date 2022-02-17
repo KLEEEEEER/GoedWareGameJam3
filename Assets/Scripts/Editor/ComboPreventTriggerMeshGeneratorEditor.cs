@@ -21,6 +21,20 @@ namespace GoedWareGameJam3.EditorBehaviour
 
         private ComboPreventTriggerMeshGenerator _targetComponent;
 
+
+        Vector3[] previousMainPoints = new Vector3[4];
+        Vector3[] currentMainPoints = new Vector3[4];
+        Vector3 normalDirection = Vector3.zero;
+        Vector3 perpendicular = Vector3.zero;
+
+        int currentIndex = 0;
+        float faceHeight = 0f;
+        float faceLength = 0f;
+        float faceHeightScale = 0f;
+        float uvScale = 0f;
+        int vertexIndex = 0;
+        int triangleIndex = 0;
+
         private void OnEnable()
         {
             _targetComponent = (ComboPreventTriggerMeshGenerator)target;
@@ -132,61 +146,92 @@ namespace GoedWareGameJam3.EditorBehaviour
             Vector3[] vertices = new Vector3[2 * 4 + (childObjectCount - 1) * 12]; // One vertex for each face of a mesh except bottom, we don't need bottom face
             Vector2[] uvs = new Vector2[vertices.Length];
             Vector3[] normals = new Vector3[vertices.Length];
-
-            Vector2[] uv = new Vector2[vertices.Length];
             int[] triangles = new int[((childObjectCount - 1) * 6 * 3) + 2 * 3 + 2 * 3]; // 2 at the start, 2 at the end and 6 for each point except last.
 
-            int currentIndex = 0;
-            Vector3 perpendicular = Vector3.Cross((childObjects[currentIndex + 1].position - childObjects[currentIndex].position).normalized, childObjects[currentIndex].up);
+            currentIndex = 0;
+            faceHeight = 0f;
+            faceLength = 0f;
+            faceHeightScale = 0f;
+            uvScale = 0f;
+            vertexIndex = 0;
+            triangleIndex = 0;
 
-            //Debug.Log($"{vertices.Length} vertices, {triangles.Length} triangles");
-            //Debug.Log($"perpendicular = {perpendicular}");
+            BuildMeshStart(childObjects, vertices, uvs, triangles);
+            BuildMeshMiddle(childObjects, vertices, uvs, triangles);
+            BuildMeshEnd(childObjects, vertices, uvs, triangles);
+            ApplyAndRecalculateMesh(mesh, vertices, uvs, triangles);
 
-            Vector3 localPosition = childObjects[currentIndex].localPosition;
-            Vector3[] previousMainPoints = new Vector3[4];
-            Vector3[] currentMainPoints = new Vector3[4];
-            Vector3 normalDirection;
+            SaveMesh(mesh);
+        }
 
-            float height = 0f;
-            float length = 0f;
-            float heightScale = 0f;
-            float uvScale = 0f;
+        private static void ApplyAndRecalculateMesh(Mesh mesh, Vector3[] vertices, Vector2[] uvs, int[] triangles)
+        {
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            //Unwrapping.GenerateSecondaryUVSet(mesh);
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+            mesh.uv = uvs;
+            Debug.Log($"{mesh.normals.Length} normals..");
+        }
 
-            int vertexIndex = 0;
-            int triangleIndex = 0;
+        private void SaveMesh(Mesh mesh)
+        {
+            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
+            {
+                AssetDatabase.CreateFolder("Assets/Scenes", $"{sceneName}");
+            }
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}/Meshes"))
+            {
+                AssetDatabase.CreateFolder($"Assets/Scenes/{sceneName}", "Meshes");
+            }
+            string path = $"Assets/Scenes/{sceneName}/Meshes/{sceneName}_{_targetComponent.name}.asset";
+            AssetDatabase.CreateAsset(mesh, path);
+            AssetDatabase.SaveAssets();
 
+            Mesh loadedMesh = (Mesh)AssetDatabase.LoadAssetAtPath(path, typeof(Mesh));
+            loadedMesh.RecalculateNormals();
 
+            Debug.Log($"loadedMesh.normals = {loadedMesh.normals.Length}");
+            _targetComponent.SetNewMesh(loadedMesh);
+        }
 
-            vertices[vertexIndex] = localPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-            vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
-            vertices[vertexIndex + 2] = localPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-            vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+        private void BuildMeshEnd(Transform[] childObjects, Vector3[] vertices, Vector2[] uvs, int[] triangles)
+        {
+            Vector3 lastChildObjectLocalPosition = childObjects[childObjects.Length - 1].localPosition;
 
-            height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
-            length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
-            uvScale = length / height;
-            heightScale = height / _height.floatValue;
+            currentMainPoints[0] = lastChildObjectLocalPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            currentMainPoints[1] = currentMainPoints[0] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+            currentMainPoints[2] = lastChildObjectLocalPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            currentMainPoints[3] = currentMainPoints[2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
 
-            uvs[vertexIndex]     = new Vector2(uvScale, 0);
-            uvs[vertexIndex + 1] = new Vector2(uvScale, heightScale);
-            uvs[vertexIndex + 3] = new Vector2(0, heightScale);
+            vertices[vertexIndex] = currentMainPoints[0];
+            vertices[vertexIndex + 1] = currentMainPoints[1];
+            vertices[vertexIndex + 2] = currentMainPoints[2];
+            vertices[vertexIndex + 3] = currentMainPoints[3];
+
+            faceHeight = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
+            faceLength = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
+            uvScale = faceLength / faceHeight;
+            faceHeightScale = faceHeight / _height.floatValue;
+
+            uvs[vertexIndex] = new Vector2(uvScale, 0);
+            uvs[vertexIndex + 1] = new Vector2(uvScale, faceHeightScale);
+            uvs[vertexIndex + 3] = new Vector2(0, faceHeightScale);
             uvs[vertexIndex + 2] = new Vector2(0, 0);
 
-            previousMainPoints[0] = vertices[vertexIndex];
-            previousMainPoints[1] = vertices[vertexIndex + 1];
-            previousMainPoints[2] = vertices[vertexIndex + 2];
-            previousMainPoints[3] = vertices[vertexIndex + 3];
-
-            triangles[triangleIndex++] = vertexIndex;
-            triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex + 2;
-
-            triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex;
+        }
 
-            vertexIndex += 4;
-
+        private void BuildMeshMiddle(Transform[] childObjects, Vector3[] vertices, Vector2[] uvs, int[] triangles)
+        {
             for (int childObjectIndex = 1; childObjectIndex < childObjects.Length; childObjectIndex++)
             {
                 Vector3 childObjectLocalPosition = childObjects[childObjectIndex].localPosition;
@@ -216,14 +261,14 @@ namespace GoedWareGameJam3.EditorBehaviour
                 vertices[vertexIndex + 2] = previousMainPoints[3];
                 vertices[vertexIndex + 3] = previousMainPoints[2];
 
-                height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
-                length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
-                uvScale = length / height;
-                heightScale = height / _height.floatValue;
+                faceHeight = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
+                faceLength = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
+                uvScale = faceLength / faceHeight;
+                faceHeightScale = faceHeight / _height.floatValue;
 
-                uvs[vertexIndex]     = new Vector2(uvScale, 0);
-                uvs[vertexIndex + 1] = new Vector2(uvScale, heightScale);
-                uvs[vertexIndex + 2] = new Vector2(0, heightScale);
+                uvs[vertexIndex] = new Vector2(uvScale, 0);
+                uvs[vertexIndex + 1] = new Vector2(uvScale, faceHeightScale);
+                uvs[vertexIndex + 2] = new Vector2(0, faceHeightScale);
                 uvs[vertexIndex + 3] = new Vector2(0, 0);
 
                 triangles[triangleIndex++] = vertexIndex + 2;
@@ -239,14 +284,14 @@ namespace GoedWareGameJam3.EditorBehaviour
                 vertices[vertexIndex + 6] = previousMainPoints[1];
                 vertices[vertexIndex + 7] = previousMainPoints[3];
 
-                height = (vertices[vertexIndex + 4] - vertices[vertexIndex + 5]).magnitude;
-                length = (vertices[vertexIndex + 5] - vertices[vertexIndex + 7]).magnitude;
-                uvScale = length / height;
-                heightScale = height / _height.floatValue;
+                faceHeight = (vertices[vertexIndex + 4] - vertices[vertexIndex + 5]).magnitude;
+                faceLength = (vertices[vertexIndex + 5] - vertices[vertexIndex + 7]).magnitude;
+                uvScale = faceLength / faceHeight;
+                faceHeightScale = faceHeight / _height.floatValue;
 
                 uvs[vertexIndex + 4] = new Vector2(uvScale, 0);
-                uvs[vertexIndex + 5] = new Vector2(uvScale, heightScale);
-                uvs[vertexIndex + 6] = new Vector2(0, heightScale);
+                uvs[vertexIndex + 5] = new Vector2(uvScale, faceHeightScale);
+                uvs[vertexIndex + 6] = new Vector2(0, faceHeightScale);
                 uvs[vertexIndex + 7] = new Vector2(0, 0);
 
                 triangles[triangleIndex++] = vertexIndex + 5;
@@ -262,14 +307,14 @@ namespace GoedWareGameJam3.EditorBehaviour
                 vertices[vertexIndex + 10] = currentMainPoints[1];
                 vertices[vertexIndex + 11] = currentMainPoints[0];
 
-                height = (vertices[vertexIndex + 8] - vertices[vertexIndex + 9]).magnitude;
-                length = (vertices[vertexIndex + 9] - vertices[vertexIndex + 11]).magnitude;
-                uvScale = length / height;
-                heightScale = height / _height.floatValue;
+                faceHeight = (vertices[vertexIndex + 8] - vertices[vertexIndex + 9]).magnitude;
+                faceLength = (vertices[vertexIndex + 9] - vertices[vertexIndex + 11]).magnitude;
+                uvScale = faceLength / faceHeight;
+                faceHeightScale = faceHeight / _height.floatValue;
 
-                uvs[vertexIndex + 8]  = new Vector2(uvScale, 0);
-                uvs[vertexIndex + 9]  = new Vector2(uvScale, heightScale);
-                uvs[vertexIndex + 10] = new Vector2(0, heightScale);
+                uvs[vertexIndex + 8] = new Vector2(uvScale, 0);
+                uvs[vertexIndex + 9] = new Vector2(uvScale, faceHeightScale);
+                uvs[vertexIndex + 10] = new Vector2(0, faceHeightScale);
                 uvs[vertexIndex + 11] = new Vector2(0, 0);
 
                 triangles[triangleIndex++] = vertexIndex + 10;
@@ -286,70 +331,41 @@ namespace GoedWareGameJam3.EditorBehaviour
                 previousMainPoints[2] = currentMainPoints[2];
                 previousMainPoints[3] = currentMainPoints[3];
             }
+        }
 
-            Vector3 lastChildObjectLocalPosition = childObjects[childObjects.Length - 1].localPosition;
+        private void BuildMeshStart(Transform[] childObjects, Vector3[] vertices, Vector2[] uvs, int[] triangles)
+        {
+            Vector3 localPosition = childObjects[currentIndex].localPosition;
+            perpendicular = Vector3.Cross((childObjects[currentIndex + 1].position - childObjects[currentIndex].position).normalized, childObjects[currentIndex].up);
+            vertices[vertexIndex] = localPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 1] = vertices[vertexIndex] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 2] = localPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 3] = vertices[vertexIndex + 2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
 
-            currentMainPoints[0] = lastChildObjectLocalPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-            currentMainPoints[1] = currentMainPoints[0] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
-            currentMainPoints[2] = lastChildObjectLocalPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-            currentMainPoints[3] = currentMainPoints[2] + Vector3.up * _height.floatValue + (Vector3.up * _standHeight.floatValue);
+            faceHeight = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
+            faceLength = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
+            uvScale = faceLength / faceHeight;
+            faceHeightScale = faceHeight / _height.floatValue;
 
-            vertices[vertexIndex] = currentMainPoints[0];
-            vertices[vertexIndex + 1] = currentMainPoints[1];
-            vertices[vertexIndex + 2] = currentMainPoints[2];
-            vertices[vertexIndex + 3] = currentMainPoints[3];
-
-            height = (vertices[vertexIndex] - vertices[vertexIndex + 1]).magnitude;
-            length = (vertices[vertexIndex + 1] - vertices[vertexIndex + 3]).magnitude;
-            uvScale = length / height;
-            heightScale = height / _height.floatValue;
-
-            uvs[vertexIndex]     = new Vector2(uvScale, 0);
-            uvs[vertexIndex + 1] = new Vector2(uvScale, heightScale);
-            uvs[vertexIndex + 3] = new Vector2(0, heightScale);
+            uvs[vertexIndex] = new Vector2(uvScale, 0);
+            uvs[vertexIndex + 1] = new Vector2(uvScale, faceHeightScale);
+            uvs[vertexIndex + 3] = new Vector2(0, faceHeightScale);
             uvs[vertexIndex + 2] = new Vector2(0, 0);
 
-            triangles[triangleIndex++] = vertexIndex + 2;
-            triangles[triangleIndex++] = vertexIndex + 3;
-            triangles[triangleIndex++] = vertexIndex + 1;
-            triangles[triangleIndex++] = vertexIndex + 2;
-            triangles[triangleIndex++] = vertexIndex + 1;
+            previousMainPoints[0] = vertices[vertexIndex];
+            previousMainPoints[1] = vertices[vertexIndex + 1];
+            previousMainPoints[2] = vertices[vertexIndex + 2];
+            previousMainPoints[3] = vertices[vertexIndex + 3];
+
             triangles[triangleIndex++] = vertexIndex;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 2;
 
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-            foreach(Vector2 uvElement in uvs)
-            {
-                Debug.Log($"{uvElement}");
-            }
-            //Unwrapping.GenerateSecondaryUVSet(mesh);
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 2;
 
-            mesh.RecalculateBounds();
-            mesh.RecalculateNormals();
-            mesh.RecalculateTangents();
-
-            Debug.Log($"{mesh.normals.Length} normals..");
-
-            mesh.uv = uvs;
-
-            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
-            {
-                AssetDatabase.CreateFolder("Assets/Scenes", $"{sceneName}");
-            }
-            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}/Meshes"))
-            {
-                AssetDatabase.CreateFolder($"Assets/Scenes/{sceneName}", "Meshes");
-            }
-            string path = $"Assets/Scenes/{sceneName}/Meshes/{sceneName}_{_targetComponent.name}.asset";
-            AssetDatabase.CreateAsset(mesh, path);
-            AssetDatabase.SaveAssets();
-
-            Mesh loadedMesh = (Mesh)AssetDatabase.LoadAssetAtPath(path, typeof(Mesh));
-            loadedMesh.RecalculateNormals();
-
-            Debug.Log($"loadedMesh.normals = {loadedMesh.normals.Length}");
-            _targetComponent.SetNewMesh(loadedMesh);
+            vertexIndex += 4;
         }
 
         private void GenerateStandMesh(Transform[] childObjects)
@@ -361,26 +377,63 @@ namespace GoedWareGameJam3.EditorBehaviour
             Vector2[] uv = new Vector2[vertices.Length];
             int[] triangles = new int[((childObjects.Length - 1) * 6 * 3) + 2 * 3 + 2 * 3];
 
-            int vertexIndex = 0;
-            int triangleIndex = 0;
+            vertexIndex = 0;
+            triangleIndex = 0;
 
-            Vector3 perpendicular = Vector3.Cross((childObjects[1].position - childObjects[0].position).normalized, childObjects[0].up);
-            Vector3 localPosition = childObjects[0].localPosition;
+            perpendicular = Vector3.Cross((childObjects[1].position - childObjects[0].position).normalized, childObjects[0].up);
+            BuildStandMeshStart(childObjects, vertices, triangles);
+            BuildStandMeshMiddle(childObjects, vertices, triangles);
+            BuildStandMeshEnd(triangles);
+            ApplyStandMeshAndRecalculate(standMesh, vertices, triangles);
+            SaveStandMesh(standMesh);
+        }
 
-            vertices[vertexIndex] = localPosition - (perpendicular * _radius.floatValue) - (perpendicular * _standWidth.floatValue);
-            vertices[vertexIndex + 1] = localPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-            vertices[vertexIndex + 2] = localPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
-            vertices[vertexIndex + 3] = localPosition + (perpendicular * _radius.floatValue) + (perpendicular * _standWidth.floatValue);
+        private void SaveStandMesh(Mesh standMesh)
+        {
+            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
+            {
+                AssetDatabase.CreateFolder("Assets/Scenes", $"{sceneName}");
+            }
+            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}/Meshes"))
+            {
+                AssetDatabase.CreateFolder($"Assets/Scenes/{sceneName}", "Meshes");
+            }
+            string path = $"Assets/Scenes/{sceneName}/Meshes/{sceneName}_{_targetComponent.name}_stand.asset";
+            AssetDatabase.CreateAsset(standMesh, path);
+            AssetDatabase.SaveAssets();
 
-            triangles[triangleIndex++] = vertexIndex + 3;
-            triangles[triangleIndex++] = vertexIndex + 1;
+            Mesh loadedMesh = (Mesh)AssetDatabase.LoadAssetAtPath(path, typeof(Mesh));
+            loadedMesh.RecalculateNormals();
+
+            _targetComponent.SetNewStandMesh(loadedMesh);
+        }
+
+        private static void ApplyStandMeshAndRecalculate(Mesh standMesh, Vector3[] vertices, int[] triangles)
+        {
+            standMesh.vertices = vertices;
+            standMesh.triangles = triangles;
+            Unwrapping.GenerateSecondaryUVSet(standMesh);
+
+            standMesh.RecalculateBounds();
+            standMesh.RecalculateNormals();
+            standMesh.RecalculateTangents();
+        }
+
+        private void BuildStandMeshEnd(int[] triangles)
+        {
+            vertexIndex -= 4;
+
             triangles[triangleIndex++] = vertexIndex;
-            triangles[triangleIndex++] = vertexIndex + 3;
-            triangles[triangleIndex++] = vertexIndex + 2;
             triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 1;
+            triangles[triangleIndex++] = vertexIndex + 2;
+            triangles[triangleIndex++] = vertexIndex + 3;
+        }
 
-            vertexIndex += 4;
-
+        private void BuildStandMeshMiddle(Transform[] childObjects, Vector3[] vertices, int[] triangles)
+        {
             for (int i = 1; i < childObjects.Length; i++)
             {
                 Vector3 childObjectLocalPosition = childObjects[i].localPosition;
@@ -428,41 +481,25 @@ namespace GoedWareGameJam3.EditorBehaviour
 
                 vertexIndex += 4;
             }
+        }
 
-            vertexIndex -= 4;
+        private void BuildStandMeshStart(Transform[] childObjects, Vector3[] vertices, int[] triangles)
+        {
+            Vector3 localPosition = childObjects[0].localPosition;
 
+            vertices[vertexIndex] = localPosition - (perpendicular * _radius.floatValue) - (perpendicular * _standWidth.floatValue);
+            vertices[vertexIndex + 1] = localPosition - perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 2] = localPosition + perpendicular * _radius.floatValue + (Vector3.up * _standHeight.floatValue);
+            vertices[vertexIndex + 3] = localPosition + (perpendicular * _radius.floatValue) + (perpendicular * _standWidth.floatValue);
+
+            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex;
-            triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex + 3;
-            triangles[triangleIndex++] = vertexIndex + 1;
             triangles[triangleIndex++] = vertexIndex + 2;
-            triangles[triangleIndex++] = vertexIndex + 3;
+            triangles[triangleIndex++] = vertexIndex + 1;
 
-            standMesh.vertices = vertices;
-            standMesh.triangles = triangles;
-            Unwrapping.GenerateSecondaryUVSet(standMesh);
-
-            standMesh.RecalculateBounds();
-            standMesh.RecalculateNormals();
-            standMesh.RecalculateTangents(); 
-            
-            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}"))
-            {
-                AssetDatabase.CreateFolder("Assets/Scenes", $"{sceneName}");
-            }
-            if (!AssetDatabase.IsValidFolder($"Assets/Scenes/{sceneName}/Meshes"))
-            {
-                AssetDatabase.CreateFolder($"Assets/Scenes/{sceneName}", "Meshes");
-            }
-            string path = $"Assets/Scenes/{sceneName}/Meshes/{sceneName}_{_targetComponent.name}_stand.asset";
-            AssetDatabase.CreateAsset(standMesh, path);
-            AssetDatabase.SaveAssets();
-
-            Mesh loadedMesh = (Mesh)AssetDatabase.LoadAssetAtPath(path, typeof(Mesh));
-            loadedMesh.RecalculateNormals();
-
-            _targetComponent.SetNewStandMesh(loadedMesh);
+            vertexIndex += 4;
         }
 
         private float GetUvScale(float length)
