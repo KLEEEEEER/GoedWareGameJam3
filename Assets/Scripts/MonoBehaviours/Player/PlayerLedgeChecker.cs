@@ -17,6 +17,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private PlayerMovement _playerMovement;
 
         RaycastHit hit;
+        RaycastHit ledgeCheckerHit;
+        public Vector3 LedgeNormal => hit.normal;
 
         private void Awake()
         {
@@ -24,25 +26,18 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerMovement = GetComponent<PlayerMovement>();
         }
 
-        public void Check()
+        public bool CheckLedgeInFront()
         {
             if (Physics.Raycast(_ledgeCheckerHead.position, _ledgeCheckerHead.forward, out hit, _ledgeCheckerDistance, _groundLayerMask))
             {
-                if (Physics.Raycast(_ledgeChecker.position, _ledgeChecker.forward, _ledgeCheckerDistance, _groundLayerMask))
+                if (Physics.Raycast(_ledgeChecker.position, _ledgeChecker.forward, out ledgeCheckerHit, _ledgeCheckerDistance, _groundLayerMask))
                 {
-                    return;
+                    return false;
                 }
-
-                PerformClimb(hit);
+                return true;
             }
-        }
 
-        private void PerformClimb(RaycastHit hit)
-        {
-            Debug.Log($"Climbing right now! Hit with {hit.collider.gameObject.name}");
-            //_playerFSM.TransitionToState(PlayerFSM.States.Climbing);
-            _playerFSM.TransitionToState(PlayerFSM.States.OnLedgeHangingState);
-            //_playerMovement.Climb(hit);
+            return false;
         }
 
         public void Climb()

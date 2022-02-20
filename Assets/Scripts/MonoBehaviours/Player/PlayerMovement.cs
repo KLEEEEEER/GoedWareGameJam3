@@ -104,6 +104,24 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             _playerAudio.PlayFootstepSounds(movementDirection);
         }
 
+        public void LedgeMove(Vector3 movementDirection, Vector3 ledgeNormal)
+        {
+            Vector3 direction = new Vector3(movementDirection.x, 0f, movementDirection.y);
+
+            RotateModel(-ledgeNormal);
+
+            direction.Normalize();
+            _playerAnimation.SetSpeed(direction.sqrMagnitude);
+            direction *= _settings.Speed;
+
+            _velocity.x = direction.x;
+            _velocity.y = 0f;
+            _velocity.z = direction.z;
+
+            Vector3 newDirection = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * _velocity * Time.deltaTime;
+            _characterController.Move(newDirection);
+        }
+
         public void Climb(RaycastHit hit)
         {
             _playerAnimation.Climb();
@@ -119,6 +137,11 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         {
             Vector3 newRotation = Vector3.RotateTowards(_model.forward, Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * direction, _settings.RotationSpeed * Time.deltaTime, 0.0f);
             _model.rotation = Quaternion.LookRotation(newRotation);
+        }
+
+        public void SetRotationModel(Vector3 direction)
+        {
+            _model.rotation = Quaternion.LookRotation(direction);
         }
 
         public void PreventFalling()

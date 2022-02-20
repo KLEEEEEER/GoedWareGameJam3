@@ -24,7 +24,10 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
 
         public override void FixedUpdate()
         {
-            _playerLedgeChecker.Check();
+            if (_playerLedgeChecker.CheckLedgeInFront())
+            {
+                _playerFSM.TransitionToState(PlayerFSM.States.OnLedgeHangingState);
+            }
         }
 
         public override void Update()
