@@ -3,33 +3,35 @@ using UnityEngine;
 
 namespace GoedWareGameJam3.MonoBehaviours.Player
 {
-    public class RunningState : BaseState
+    public class OnLedgeHangingState : BaseState
     {
         private PlayerFSM _playerFSM;
-        private PlayerMovement _playerMovement;
         private PlayerInputs _playerInputs;
         private PlayerLedgeChecker _playerLedgeChecker;
-        public RunningState(FSMBase fsm) : base(fsm) 
+        private PlayerAnimation _playerAnimation;
+        public OnLedgeHangingState(FSMBase fsm) : base(fsm) 
         {
             _playerFSM = fsm.GetComponent<PlayerFSM>();
-            _playerMovement = fsm.GetComponent<PlayerMovement>();
             _playerInputs = fsm.GetComponent<PlayerInputs>();
             _playerLedgeChecker = fsm.GetComponent<PlayerLedgeChecker>();
+            _playerAnimation = fsm.GetComponent<PlayerAnimation>();
         }
 
         public override void EnterState()
         {
-            _playerMovement.Activate();
+            _playerInputs.OnJumpPressed += Climb;
+            _playerAnimation.Hang();
         }
 
-        public override void FixedUpdate()
+        public override void ExitState()
         {
-            _playerLedgeChecker.Check();
+            _playerInputs.OnJumpPressed -= Climb;
         }
 
-        public override void Update()
+        private void Climb()
         {
-            _playerMovement.Move(_playerInputs.GetInput());
+            _playerLedgeChecker.Climb();
+            _playerFSM.TransitionToState(PlayerFSM.States.Climbing);
         }
     }
 }

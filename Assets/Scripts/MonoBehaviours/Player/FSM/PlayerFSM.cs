@@ -12,7 +12,8 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             Disabled,
             Running,
             Jumping,
-            Climbing
+            Climbing,
+            OnLedgeHangingState
         }
 
         private void Awake()
@@ -21,6 +22,7 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
             AddState(States.Running, new RunningState(this));
             AddState(States.Jumping, new JumpingState(this));
             AddState(States.Climbing, new ClimbingState(this));
+            AddState(States.OnLedgeHangingState, new OnLedgeHangingState(this));
         }
 
         private void Start()

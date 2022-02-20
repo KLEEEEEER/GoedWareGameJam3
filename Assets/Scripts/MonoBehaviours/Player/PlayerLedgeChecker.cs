@@ -16,15 +16,16 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private PlayerFSM _playerFSM;
         private PlayerMovement _playerMovement;
 
+        RaycastHit hit;
+
         private void Awake()
         {
             _playerFSM = GetComponent<PlayerFSM>();
             _playerMovement = GetComponent<PlayerMovement>();
         }
 
-        private void FixedUpdate()
+        public void Check()
         {
-            RaycastHit hit;
             if (Physics.Raycast(_ledgeCheckerHead.position, _ledgeCheckerHead.forward, out hit, _ledgeCheckerDistance, _groundLayerMask))
             {
                 if (Physics.Raycast(_ledgeChecker.position, _ledgeChecker.forward, _ledgeCheckerDistance, _groundLayerMask))
@@ -39,7 +40,13 @@ namespace GoedWareGameJam3.MonoBehaviours.Player
         private void PerformClimb(RaycastHit hit)
         {
             Debug.Log($"Climbing right now! Hit with {hit.collider.gameObject.name}");
-            _playerFSM.TransitionToState(PlayerFSM.States.Climbing);
+            //_playerFSM.TransitionToState(PlayerFSM.States.Climbing);
+            _playerFSM.TransitionToState(PlayerFSM.States.OnLedgeHangingState);
+            //_playerMovement.Climb(hit);
+        }
+
+        public void Climb()
+        {
             _playerMovement.Climb(hit);
         }
 
